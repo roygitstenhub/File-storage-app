@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "./styles/DirectoryView.css";
+body {
+    font-family: Arial, sans-serif;
+  }
