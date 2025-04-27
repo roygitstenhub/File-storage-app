@@ -2,10 +2,11 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import directoryRoutes from "./routes/directoryRoutes.js"
-import fileRoutes from "./routes/fileRouters.js"
+import fileRoutes from "./routes/fileRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import checkAuth from "./middleware/auth.js"
 import { connectDb } from "./database/db.js"
+import "./database/mongoose.js"
 
 const PORT = 3030 || 3000
 

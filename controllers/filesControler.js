@@ -1,24 +1,13 @@
-import express from "express"
 import { createWriteStream } from "fs"
-import { rm, rename, writeFile } from "fs/promises"
+import { rm } from "fs/promises"
 import path from "path"
-import filesData from "../filesDB.json" with {type: "json"}
-import directoriesData from "../directoriesDB.json" with {type: "json"}
-import validateIdMiddleware from "../middleware/validateIdMiddleware.js"
 import { ObjectId } from "mongodb"
+import Directory from "../model/directoryModel.js"
+import File from "../model/fileModel.js"
 
-const router = express.Router()
-
-router.param("parentDirId", validateIdMiddleware)
-router.param("id", validateIdMiddleware)
-
-//Create
-router.post('/:parentDirId?', async (req, res) => {
-    const db = req.db
-    const dirCollection = db.collection("directories")
-    const filesCollection = db.collection("files")
+export const upLoadFile = async (req, res) => {
     const parentDirId = req.params.parentDirId || req.user.rootDirId;
-    const parentDirData = await dirCollection.findOne({ _id: new ObjectId(parentDirId), userId: req.user._id })
+    const parentDirData = await Directory.findOne({ _id: parentDirId, userId: req.user._id })
 
     if (!parentDirData) {
         return res.status(404).json({
@@ -28,14 +17,14 @@ router.post('/:parentDirId?', async (req, res) => {
 
     const filename = req.headers.filename || 'untitled'
     const extension = path.extname(filename)
-    const insertedFile = await filesCollection.insertOne({
+    const insertedFile = await File.insertOne({
         extension,
         name: filename,
         parentDirId: parentDirData._id,
         userId: req.user._id
     })
 
-    const fileId = insertedFile.insertedId.toString()
+    const fileId = insertedFile.id
     const fullFileName = `${fileId}${extension}`
 
     const writeStream = createWriteStream(`./storage/${fullFileName}`)
@@ -46,18 +35,16 @@ router.post('/:parentDirId?', async (req, res) => {
     })
 
     req.on('error', async () => {
-        await filesCollection.deleteOne({ _id: insertedFile.insertedId })
+        await File.deleteOne({ _id: insertedFile.insertedId })
         res.status(404).json({ message: "Could not upload file" })
     })
-})
+}
 
-//Read
-router.get("/:id", async (req, res) => {
+
+export const getFile = async (req, res) => {
     try {
         const { id } = req.params
-        const db = req.db
-        const filesCollection = db.collection("files")
-        const fileData = await filesCollection.findOne({ _id: new ObjectId(id), userId: req.user._id })
+        const fileData = await File.findOne({ _id:id, userId: req.user._id })
 
         if (!fileData) {
             return res.status(404).json({ error: "File not found!" })
@@ -78,22 +65,19 @@ router.get("/:id", async (req, res) => {
     } catch (error) {
         res.status(404).json(error.message)
     }
-});
+}
 
-//update
-router.patch("/:id", async (req, res, next) => {
+export const renameFile = async (req, res, next) => {
     try {
         const { id } = req.params
-        const db = req.db
-        const filesCollection = db.collection("files")
-        const fileData = await filesCollection.findOne({ _id: new ObjectId(id), userId: req.user._id })
+        const file = await File.findOne({ _id:id, userId: req.user._id })
 
-        if (!fileData) {
+        if (!file) {
             return res.status(404).json({ error: "File not found" })
         }
 
-        await filesCollection.updateOne({
-            _id: new ObjectId(id)
+        await File.updateOne({
+            _id: id
         }, { $set: { name: req.body.newFilename } })
 
         return res.status(200).json({ message: "Renamed" });
@@ -101,26 +85,23 @@ router.patch("/:id", async (req, res, next) => {
         error.status = 500
         next(error)
     }
-})
+}
 
-//delete
-router.delete("/:id", async (req, res, next) => {
+export const deleteFile = async (req, res, next) => {
     try {
         const { id } = req.params
-        const db = req.db
-        const filesCollection = db.collection("files")
-        const fileData = await filesCollection.findOne({
-            _id:new ObjectId(id),
-            userId:req.user._id
-        })
+        const file = await File.findOne({
+            _id: id,
+            userId: req.user._id
+        }).select("extension")
 
-        if(!fileData){
-            return res.status(404).json({error:"File not found"})
+        if (!file) {
+            return res.status(404).json({ error: "File not found" })
         }
 
         await rm(`./storage/${id}${fileData.extension}`, { recursive: true })
 
-        await filesCollection.deleteOne({_id:fileData._id})
+        await file.deleteOne()
 
         return res.status(200).json({
             message: "File deleted successully"
@@ -128,7 +109,4 @@ router.delete("/:id", async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-})
-
-
-export default router
+}
