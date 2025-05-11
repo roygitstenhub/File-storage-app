@@ -2,4 +2,9 @@
 @import "./styles/DirectoryView.css";
 body {
     font-family: Arial, sans-serif;
-  }
+}
+
+::selection{
+  background-color: orange;
+  color: white;
+}

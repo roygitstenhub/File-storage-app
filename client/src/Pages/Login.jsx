@@ -58,9 +58,8 @@ const Login = () => {
                     setisError(_data.error)
                 } else {
                     setisSuccess(true)
-                    setTimeout(() => {
-                        navigate('/')
-                    }, 1000)
+                    navigate('/')
+
                 }
             } catch (error) {
                 console.error("Error:", error);

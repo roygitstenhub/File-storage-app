@@ -14,20 +14,20 @@ function DirectoryHeader({
   onUploadFilesClick,
   fileInputRef,
   handleFileSelect,
-  disabled=false
+  disabled = false
 }) {
-    // Use a constant for the API base URL
-    const BASE_URL = "http://localhost:3030";
+  // Use a constant for the API base URL
+  const BASE_URL = "http://localhost:3030";
 
-    const [showUserMenu, setShowUserMenu] = useState(false);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [userName, setUserName] = useState("Guest User");
-    const [userEmail, setUserEmail] = useState("guest@example.com");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("Guest User");
+  const [userEmail, setUserEmail] = useState("guest@example.com");
 
-    const userMenuRef = useRef(null);
-    const navigate = useNavigate();
+  const userMenuRef = useRef(null);
+  const navigate = useNavigate();
 
-      // -------------------------------------------
+  // -------------------------------------------
   // 1. Fetch user info from /user on mount
   // -------------------------------------------
   useEffect(() => {
@@ -58,7 +58,7 @@ function DirectoryHeader({
     fetchUser();
   }, [BASE_URL]);
 
-    // -------------------------------------------
+  // -------------------------------------------
   // 2. Toggle user menu
   // -------------------------------------------
   const handleUserIconClick = () => {
@@ -71,6 +71,29 @@ function DirectoryHeader({
   const handleLogout = async () => {
     try {
       const response = await fetch(`${BASE_URL}/user/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        console.log("Logged out successfully");
+        // Optionally reset local state
+        setLoggedIn(false);
+        setUserName("Guest User");
+        setUserEmail("guest@example.com");
+        navigate("/login");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setShowUserMenu(false);
+    }
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/user/logout-all`, {
         method: "POST",
         credentials: "include",
       });
@@ -105,7 +128,7 @@ function DirectoryHeader({
       document.removeEventListener("mousedown", handleDocumentClick);
     };
   }, []);
-  
+
 
   return (
     <header className="directory-header">
@@ -165,6 +188,14 @@ function DirectoryHeader({
                   >
                     <FaSignOutAlt className="menu-item-icon" />
                     <span>Logout</span>
+                  </div>
+
+                   <div
+                    className="user-menu-item login-btn"
+                    onClick={handleLogoutAll}
+                  >
+                    <FaSignOutAlt className="menu-item-icon" />
+                    <span>Logout All</span>
                   </div>
                 </>
               ) : (

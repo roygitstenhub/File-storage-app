@@ -84,7 +84,6 @@ export const deleteDirectory = async (req, res, next) => {
 
             for (const { _id } of directories) {
                 const { files: childFiles, directories: childDir } = await getDirContents(_id)
-
                 files = [...files, ...childFiles]
                 directories = [...directories, ...childDir]
             }

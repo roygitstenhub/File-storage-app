@@ -99,7 +99,7 @@ export const deleteFile = async (req, res, next) => {
             return res.status(404).json({ error: "File not found" })
         }
 
-        await rm(`./storage/${id}${fileData.extension}`, { recursive: true })
+        await rm(`./storage/${id}${file.extension}`, { recursive: true })
 
         await file.deleteOne()
 
