@@ -114,9 +114,7 @@ function DirectoryHeader({
     }
   };
 
-  // -------------------------------------------
-  // 4. Close menu on outside click
-  // -------------------------------------------
+
   useEffect(() => {
     function handleDocumentClick(e) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {

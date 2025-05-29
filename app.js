@@ -5,6 +5,7 @@ import directoryRoutes from "./routes/directoryRoutes.js"
 import fileRoutes from "./routes/fileRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import checkAuth from "./middleware/auth.js"
+import authRoutes from "./routes/authRouter.js"
 import { connectDb } from "./database/db.js"
 
 const PORT = 3030 || 3000
@@ -24,6 +25,7 @@ app.use(cors({
 app.use("/directory", checkAuth, directoryRoutes)
 app.use("/file", checkAuth, fileRoutes)
 app.use("/user", userRoutes)
+app.use("/auth",authRoutes)
 
 app.use((err, req, res, next) => {
     console.log(err)

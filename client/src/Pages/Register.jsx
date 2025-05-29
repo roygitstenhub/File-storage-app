@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { data, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google"
+import { loginWithGoogle } from "../apis/loginWithGoogle.js";
 
 const Register = () => {
 
@@ -63,7 +65,7 @@ const Register = () => {
                 setisError(_data.error)
             } else {
                 setisSuccess(true)
-                    navigate('/')
+                navigate('/')
             }
 
         }
@@ -134,6 +136,25 @@ const Register = () => {
                         Sign In
                     </a>
                 </p>
+
+                <div className="google-login">
+                    <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                            const data = await loginWithGoogle(credentialResponse.credential);
+                            if (data.error) {
+                                console.log(data);
+                                return;
+                            }
+                            navigate("/");
+                        }}
+                        theme="filled_blue"
+                        text="continue_with"
+                        onError={() => {
+                            console.log("Login Failed");
+                        }}
+                        useOneTap
+                    />
+                </div>
             </div>
         </div>
     );

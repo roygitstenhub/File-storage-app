@@ -9,6 +9,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "google-auth-library": "^9.15.1",
     "mongodb": "^6.15.0",
     "mongoose": "^8.14.0"
   }

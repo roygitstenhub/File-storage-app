@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { loginWithGoogle } from "../apis/loginWithGoogle.js";
 
 const Login = () => {
     const _baseUrl = "http://localhost:3030";
@@ -103,6 +105,25 @@ const Login = () => {
                 <p className="mt-4 text-center text-sm">
                     Don't have an account? <a href="/register" className="text-blue-500 hover:underline">Sign Up</a>
                 </p>
+
+                <div className="google-login">
+                    <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                            const data = await loginWithGoogle(credentialResponse.credential);
+                            if (data.error) {
+                                console.log(data);
+                                return;
+                            }
+                            navigate("/");
+                        }}
+                        theme="filled_blue"
+                        text="continue_with"
+                        onError={() => {
+                            console.log("Login Failed");
+                        }}
+                        useOneTap
+                    />
+                </div>
             </div>
         </div>
     );
