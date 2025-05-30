@@ -106,6 +106,10 @@ const Login = () => {
                     Don't have an account? <a href="/register" className="text-blue-500 hover:underline">Sign Up</a>
                 </p>
 
+                <div className="or">
+                    <span>Or</span>
+                </div>
+
                 <div className="google-login">
                     <GoogleLogin
                         onSuccess={async (credentialResponse) => {

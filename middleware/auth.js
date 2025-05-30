@@ -11,7 +11,7 @@ export default async function checkAuth(req, res, next) {
 
     const session = await Session.findById(sid)
 
-    if(!session){
+    if (!session) {
         res.clearCookie("sid")
         return res.status(401).json({ error: "Not Logged In!" })
     }
@@ -23,3 +23,18 @@ export default async function checkAuth(req, res, next) {
     req.user = user
     next()
 }
+
+export const checkNotRegularUser = (req, res, next) => {
+    if (req.user.role !== "User") {
+        return next()
+    }
+    res.status(403).json({ error: "You can not access users" })
+}
+
+export const checkIsAdminUser = (req, res, next) => {
+    if (req.user.role === "Admin") {
+        return next()
+    }
+    res.status(403).json({ error: "You can not delete users" })
+}
+

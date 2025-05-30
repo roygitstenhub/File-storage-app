@@ -12,6 +12,11 @@ export const loginWithGoogle = async (req, res, next) => {
     const user = await User.findOne({ email }).select("-__v")
 
     if (user) {
+
+        if (user.deleted) {
+            return res.status(403).json({ error: "Your account has been deleted .Contact App Admin" })
+        }
+
         const allSessions = await Session.find({ userId: user._id })
 
         if (allSessions.length >= 2) {
@@ -48,7 +53,7 @@ export const loginWithGoogle = async (req, res, next) => {
 
         await User.insertOne({
             _id: userId,
-            username:name,
+            username: name,
             email,
             picture,
             rootDirId

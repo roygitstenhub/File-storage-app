@@ -137,6 +137,10 @@ const Register = () => {
                     </a>
                 </p>
 
+                <div className="or">
+                    <span>Or</span>
+                </div>
+
                 <div className="google-login">
                     <GoogleLogin
                         onSuccess={async (credentialResponse) => {

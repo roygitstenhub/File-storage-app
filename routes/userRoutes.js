@@ -1,22 +1,29 @@
 import express from "express"
-import checkAuth from "../middleware/auth.js"
-import { getCurrentUser, login, logout, logoutAll, register } from "../controllers/usersControler.js"
+import checkAuth, { checkIsAdminUser, checkNotRegularUser } from "../middleware/auth.js"
+import { deleteUser, getAllUsers, getCurrentUser, login, logout, logoutAll, logoutById, register } from "../controllers/usersControler.js"
 
 const router = express.Router()
 
 //register
-router.post('/register',register )
+router.post('/user/register', register)
 
 //login
-router.post('/login',login )
+router.post('/user/login',login)
 
 //profile
-router.get('/', checkAuth, getCurrentUser)
+router.get('/user', checkAuth, getCurrentUser)
 
 //logout
-router.post('/logout',logout )
+router.post('/user/logout', logout)
 
 //logout all
-router.post('/logout-all',logoutAll)
+router.post('/user/logout-all', logoutAll)
+
+//all usrers
+router.get('/users', checkAuth, checkNotRegularUser, getAllUsers)
+
+router.post("/users/:userId/logout", checkAuth, checkNotRegularUser, logoutById)
+
+router.delete("/users/:userId", checkAuth, checkIsAdminUser, deleteUser)
 
 export default router

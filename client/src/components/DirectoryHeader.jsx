@@ -39,6 +39,7 @@ function DirectoryHeader({
         if (response.ok) {
           const data = await response.json();
           // Set user info if logged in
+          console.log(data)
           setUserName(data.name);
           setUserEmail(data.email);
           setLoggedIn(true);
@@ -56,7 +57,7 @@ function DirectoryHeader({
       }
     }
     fetchUser();
-  }, [BASE_URL]);
+  }, []);
 
   // -------------------------------------------
   // 2. Toggle user menu

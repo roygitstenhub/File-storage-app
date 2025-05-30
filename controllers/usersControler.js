@@ -1,5 +1,6 @@
 import User from "../model/userModel.js"
 import Directory from "../model/directoryModel.js"
+import File from "../model/fileModel.js";
 import { Types } from "mongoose";
 import bcrypt from "bcrypt"
 import Session from "../model/sessionModel.js";
@@ -46,6 +47,10 @@ export const login = async (req, res, next) => {
 
     const user = await User.findOne({ email })
 
+    if (user.deleted) {
+        return res.status(403).json({ error: "Your account has been deleted .Contact App Admin" })
+    }
+
     if (!user) {
         return res.status(404).json({ error: "Invalid Credentials" })
     }
@@ -80,7 +85,18 @@ export const getCurrentUser = (req, res) => {
     res.status(200).json({
         name: req.user.username,
         email: req.user.email,
+        picture: req.user.picture,
+        role: req.user.role
     })
+}
+
+export const getAllUsers = async (req, res) => {
+    const getallusers = await User.find({ deleted: false }).lean()
+    const allSession = await Session.find().lean()
+    const allSessionUserId = allSession.map(({ userId }) => userId.toString())
+    const allSessionUserIdSet = new Set(allSessionUserId)
+    const transformedUsers = getallusers.map(({ _id, username, email }) => ({ id: _id, username, email, isLoggedIn: allSessionUserIdSet.has(_id.toString()) }))
+    res.status(200).json(transformedUsers)
 }
 
 export const logout = async (req, res) => {
@@ -96,4 +112,31 @@ export const logoutAll = async (req, res) => {
     await Session.deleteMany({ userId: session.userId })
     res.clearCookie('sid')
     res.status(204).end()
+}
+
+export const logoutById = async (req, res, next) => {
+    try {
+        await Session.deleteMany({ userId: req.params.userId })
+        res.status(204).end()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const deleteUser = async (req, res, next) => {
+    const { userId } = req.params
+    if (req.user._id.toString() === userId) {
+        return res.status(403).json({ error: "You cannot delete yourself" })
+    }
+
+    try {
+        // await User.findByIdAndDelete(userId)
+        // await File.deleteMany({ userId })
+        // await Directory.deleteMany({ userId })
+        await Session.deleteMany({ userId: req.params.userId })
+        await User.findByIdAndUpdate(userId, { deleted: true })
+        res.status(204).end()
+    } catch (error) {
+        next(error)
+    }
 }
