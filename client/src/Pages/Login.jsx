@@ -73,8 +73,19 @@ const Login = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">
             <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+                {
+                    isError && (
+                        <div id="alert-border-2" class="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-400 dark:bg-gray-100 dark:border-red-400" role="alert">
+                            <svg class="shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                            </svg>
+                            <div class="ms-3 text-sm font-medium">
+                                {isError}<a href="#" class="font-semibold underline hover:no-underline"></a>
+                            </div>
+                        </div>
+                    )
+                }
                 <h2 className="text-2xl font-semibold text-center">Login</h2>
-                <p>{isError}</p>
                 <form className="mt-4" onSubmit={handleSubmit}>
                     <div className="mt-4">
                         <label className="block text-sm font-medium">Email</label>
@@ -110,12 +121,12 @@ const Login = () => {
                     <span>Or</span>
                 </div>
 
-                <div className="google-login">
+                <div className="google-login ">
                     <GoogleLogin
                         onSuccess={async (credentialResponse) => {
                             const data = await loginWithGoogle(credentialResponse.credential);
                             if (data.error) {
-                                console.log(data);
+                                 setisError(data.error)
                                 return;
                             }
                             navigate("/");

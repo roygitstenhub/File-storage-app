@@ -17,12 +17,12 @@ router.get('/user', checkAuth, getCurrentUser)
 router.post('/user/logout', logout)
 
 //logout all
-router.post('/user/logout-all', logoutAll)
+router.post('/user/logout-all',checkAuth, logoutAll)
 
 //all usrers
 router.get('/users', checkAuth, checkNotRegularUser, getAllUsers)
 
-router.post("/users/:userId/logout", checkAuth, checkNotRegularUser, logoutById)
+router.post("/users/:userId/logout", checkAuth,checkNotRegularUser, logoutById)
 
 router.delete("/users/:userId", checkAuth, checkIsAdminUser, deleteUser)
 

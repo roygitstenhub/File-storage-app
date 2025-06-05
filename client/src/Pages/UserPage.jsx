@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ConfirmModal from '../helper/ConfirmModel';
 
 
 export default function UsersPage() {
@@ -8,6 +9,12 @@ export default function UsersPage() {
     const [userName, setUserName] = useState("Guest User");
     const [userEmail, setUserEmail] = useState("Guest User");
     const [userRole, setUserRole] = useState("User")
+
+    //popup info
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
+    const [onConfirmAction, setOnConfirmAction] = useState(() => () => { });
 
     const BASE_URL = "http://localhost:3030";
 
@@ -59,51 +66,70 @@ export default function UsersPage() {
         }
     }
 
-    const logoutUser = async (user) => {
-        const { id, email } = user
-        const logoutConfirmed = confirm(`You are above to logout a ${email} `)
-        if (!logoutConfirmed) return
-        try {
-            const response = await fetch(`${BASE_URL}/users/${id}/logout`, {
-                method: "POST",
-                credentials: "include",
-            });
-            if (response.ok) {
-                console.log("Logged out successfully");
-                // Optionally reset local state
-                fetchAllUsers()
-            } else {
-                console.error("Logout failed");
-            }
-        } catch (err) {
-            console.error("Logout error:", err);
-        }
+    const showConfirmationModal = (title, message, action) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setOnConfirmAction(() => () => {
+            action();
+            setIsModalOpen(false);
+        });
+        setIsModalOpen(true);
     };
 
-        const deleteUser = async (user) => {
-        const { id, email } = user
-        const logoutConfirmed = confirm(`You are above to delete a ${email} `)
-        if (!logoutConfirmed) return
-        try {
-            const response = await fetch(`${BASE_URL}/users/${id}`, {
-                method: "DELETE",
-                credentials: "include",
-            });
-            if (response.ok) {
-                console.log("User Deleted Successfully");
-                fetchAllUsers()
-            } else {
-                console.error("Delete failed");
+ 
+    const logoutUser = (user) => {
+        const { id, email } = user;
+        showConfirmationModal(
+            "Confirm Logout",
+            `Are you sure you want to logout ${email}?`,
+            async () => {
+                try {
+                    const response = await fetch(`${BASE_URL}/users/${id}/logout`, {
+                        method: "POST",
+                        credentials: "include",
+                    });
+                    if (response.ok) {
+                        console.log("Logged out successfully");
+                        fetchAllUsers();
+                    } else {
+                        console.error("Logout failed");
+                    }
+                } catch (err) {
+                    console.error("Logout error:", err);
+                }
             }
-        } catch (err) {
-            console.error("delete error:", err);
-        }
+        );
     };
+
+    const deleteUser = (user) => {
+        const { id, email } = user;
+        showConfirmationModal(
+            "Confirm Delete",
+            `Are you sure you want to delete ${email}?`,
+            async () => {
+                try {
+                    const response = await fetch(`${BASE_URL}/users/${id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                    });
+                    if (response.ok) {
+                        console.log("User Deleted Successfully");
+                        fetchAllUsers();
+                    } else {
+                        console.error("Delete failed");
+                    }
+                } catch (err) {
+                    console.error("Delete error:", err);
+                }
+            }
+        );
+    };
+
 
     return (
-        <div className="users-container">
+        <div className="users-container ">
             <h1 className="title">All Users</h1>
-            <p>{userName} : {userRole}</p>
+            <p className='font-semibold mb-4 text-slate-600'> {userName} : ({userRole})</p>
             <table className="user-table">
                 <thead>
                     <tr>
@@ -114,12 +140,12 @@ export default function UsersPage() {
                         {userRole === "Admin" && <th></th>}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className='text-gray-500'>
                     {users.map((user) => (
                         <tr key={user.id}>
                             <td>{user.username}</td>
                             <td>{user.email}</td>
-                            <td>{user.isLoggedIn ? 'Logged In' : 'Logged Out'}</td>
+                            <td>{user.isLoggedIn ? <span className='text-green-600 text-sm'>Logged In</span> : <span className='text-red-600 text-sm'>Logged Out</span>}</td>
                             <td>
                                 <button
                                     className="logout-button"
@@ -147,6 +173,14 @@ export default function UsersPage() {
                     ))}
                 </tbody>
             </table>
+
+            <ConfirmModal
+                isOpen={isModalOpen}
+                title={modalTitle}
+                message={modalMessage}
+                onConfirm={onConfirmAction}
+                onCancel={() => setIsModalOpen(false)}
+            />
         </div>
     );
 }

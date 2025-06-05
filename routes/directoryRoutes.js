@@ -4,7 +4,6 @@ import { createDirectory, deleteDirectory, getDirectoryById, renameDirectory } f
 
 const router = express.Router()
 
-
 router.param("parentDirId", validateIdMiddleware)
 router.param("id", validateIdMiddleware)
 

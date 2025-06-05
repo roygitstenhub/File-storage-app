@@ -1,8 +1,9 @@
-import mongoose, { Types } from "mongoose";
+import  { Types } from "mongoose";
 import User from "../model/userModel.js";
 import Directory from "../model/directoryModel.js";
-import Session from "../model/sessionModel.js";
+// import Session from "../model/sessionModel.js";
 import { verifyIdToken } from "../services/googleAuthServices.js";
+import redisClient from "../database/redis.js";
 
 export const loginWithGoogle = async (req, res, next) => {
 
@@ -17,10 +18,16 @@ export const loginWithGoogle = async (req, res, next) => {
             return res.status(403).json({ error: "Your account has been deleted .Contact App Admin" })
         }
 
-        const allSessions = await Session.find({ userId: user._id })
+        // const allSessions = await Session.find({ userId: user._id })
+        // if (allSessions.length >= 2) {
+        //     await allSessions[0].deleteOne()
+        // }
 
-        if (allSessions.length >= 2) {
-            await allSessions[0].deleteOne()
+        const allSession = await redisClient.ft.search('userIdIdx', `@userId:{${user._id}}`, {
+            RETURN: []
+        })
+        if (allSession.total >= 2) {
+            await redisClient.del(allSession.documents[0].id)
         }
 
         if (!user.picture.includes("googleusercontent.com")) {
@@ -28,13 +35,20 @@ export const loginWithGoogle = async (req, res, next) => {
             await user.save()
         }
 
-        const session = await Session.create({ userId: user._id })
-
-        res.cookie("sid", session.id, {
+        const sessionId = crypto.randomUUID()
+        const redisKey = `session:${sessionId}`
+        await redisClient.json.set(redisKey, "$", {
+            userId: user._id,
+            rootDirId: user.rootDirId,
+            role:user.role
+        })
+        const sessionExpiryTime = 60 * 1000 * 60 * 24 * 7
+        await redisClient.expire(redisKey, sessionExpiryTime / 1000)
+        res.cookie("sid", sessionId, {
             httpOnly: true,
             signed: true,
-            maxAge: 60 * 1000 * 60 * 24 * 7,
-        });
+            maxAge: sessionExpiryTime
+        })
 
         return res.json({ message: "Logged In" })
 
@@ -59,12 +73,18 @@ export const loginWithGoogle = async (req, res, next) => {
             rootDirId
         })
 
-        const session = await Session.create({ userId: userId })
-
-        res.cookie("sid", session.id, {
+        const sessionId = crypto.randomUUID()
+        const redisKey = `session:${sessionId}`
+        await redisClient.json.set(redisKey, "$", {
+            userId: user._id,
+            rootDirId: user.rootDirId,
+        })
+        const sessionExpiryTime = 60 * 1000 * 60 * 24 * 7
+        await redisClient.expire(redisKey, sessionExpiryTime / 1000)
+        res.cookie("sid", sessionId, {
             httpOnly: true,
             signed: true,
-            maxAge: 60 * 1000 * 60 * 24 * 7,
+            maxAge: sessionExpiryTime
         })
 
         res.status(201).json({ message: "account created and logged in" });
