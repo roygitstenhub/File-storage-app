@@ -1,41 +1,18 @@
+import { useDirectoryContext } from "../context/DirectoryContext";
 import DirectoryItem from "./DirectoryItem";
 
-function DirectoryList({
-  items,
-  handleRowClick,
-  activeContextMenu,
-  contextMenuPos,
-  handleContextMenu,
-  getFileIcon,
-  isUploading,
-  progressMap,
-  handleCancelUpload,
-  handleDeleteFile,
-  handleDeleteDirectory,
-  openRenameModal,
-  BASE_URL,
-}) {
+function DirectoryList({ items }) {
+  const { progressMap } = useDirectoryContext();
+
   return (
-    <div className="directory-list">
+    <div className="space-y-2">
       {items.map((item) => {
         const uploadProgress = progressMap[item.id] || 0;
-
         return (
           <DirectoryItem
             key={item.id}
             item={item}
-            handleRowClick={handleRowClick}
-            activeContextMenu={activeContextMenu}
-            contextMenuPos={contextMenuPos}
-            handleContextMenu={handleContextMenu}
-            getFileIcon={getFileIcon}
-            isUploading={isUploading}
             uploadProgress={uploadProgress}
-            handleCancelUpload={handleCancelUpload}
-            handleDeleteFile={handleDeleteFile}
-            handleDeleteDirectory={handleDeleteDirectory}
-            openRenameModal={openRenameModal}
-            BASE_URL={BASE_URL}
           />
         );
       })}
@@ -44,3 +21,50 @@ function DirectoryList({
 }
 
 export default DirectoryList;
+
+// import DirectoryItem from "./DirectoryItem";
+
+// function DirectoryList({
+//   items,
+//   handleRowClick,
+//   activeContextMenu,
+//   contextMenuPos,
+//   handleContextMenu,
+//   getFileIcon,
+//   isUploading,
+//   progressMap,
+//   handleCancelUpload,
+//   handleDeleteFile,
+//   handleDeleteDirectory,
+//   openRenameModal,
+//   BASE_URL,
+// }) {
+//   return (
+//     <div className="directory-list">
+//       {items.map((item) => {
+//         const uploadProgress = progressMap[item.id] || 0;
+
+//         return (
+//           <DirectoryItem
+//             key={item.id}
+//             item={item}
+//             handleRowClick={handleRowClick}
+//             activeContextMenu={activeContextMenu}
+//             contextMenuPos={contextMenuPos}
+//             handleContextMenu={handleContextMenu}
+//             getFileIcon={getFileIcon}
+//             isUploading={isUploading}
+//             uploadProgress={uploadProgress}
+//             handleCancelUpload={handleCancelUpload}
+//             handleDeleteFile={handleDeleteFile}
+//             handleDeleteDirectory={handleDeleteDirectory}
+//             openRenameModal={openRenameModal}
+//             BASE_URL={BASE_URL}
+//           />
+//         );
+//       })}
+//     </div>
+//   );
+// }
+
+// export default DirectoryList;

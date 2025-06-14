@@ -15,10 +15,10 @@ export default function ConfirmModal({ isOpen, title, message, onConfirm, onCanc
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-white/10 backdrop-blur" />
+                    <div className="fixed inset-0 bg-white/10 opacity backdrop-blur" />
                 </Transition.Child>
 
-                <div className="fixed inset-0 flex items-center justify-center p-4 border">
+                <div className="fixed inset-0 flex items-center justify-center p-4 ">
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -28,7 +28,7 @@ export default function ConfirmModal({ isOpen, title, message, onConfirm, onCanc
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className="max-w-md w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                        <Dialog.Panel className="max-w-md w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all border border-gray-200  ">
                             <Dialog.Title className="text-lg font-medium text-gray-900">{title}</Dialog.Title>
                             <div className="mt-2">
                                 <p className="text-sm text-gray-500">{message}</p>

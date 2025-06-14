@@ -2,7 +2,7 @@ import User from "../model/userModel.js"
 import Directory from "../model/directoryModel.js"
 import { Types } from "mongoose";
 import bcrypt from "bcrypt"
-import Session from "../model/sessionModel.js";
+// import Session from "../model/sessionModel.js";
 import redisClient from "../database/redis.js";
 
 export const register = async (req, res, next) => {
@@ -43,6 +43,7 @@ export const register = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
+    
     const { email, password } = req.body
 
     const user = await User.findOne({ email })

@@ -3,8 +3,8 @@ import mongoose from "mongoose"
 
 export async function connectDb() {
     try {
-        await mongoose.connect("mongodb://127.0.0.1:27017/storageApp")
-    console.log("Connected to database")
+        await mongoose.connect(`${process.env.MONGODB_URI}`)
+        console.log("Connected to mongoDB database")
     } catch (error) {
         console.log(error)
         console.log("Could not connect to the database")

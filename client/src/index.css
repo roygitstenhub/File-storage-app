@@ -3,6 +3,8 @@
 @import "./styles/DirectoryView.css";
 @import "./styles/UserPage.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
      font-family: "Lato", sans-serif;
 }
