@@ -4,12 +4,21 @@ import { Types } from "mongoose";
 import bcrypt from "bcrypt"
 // import Session from "../model/sessionModel.js";
 import redisClient from "../database/redis.js";
+import { loginSchema, registerSchema } from "../validators/authSchema.js";
+import { z } from "zod/v4";
 
 export const register = async (req, res, next) => {
-    const { username, email, password } = req.body
+    const { success, data, error } = registerSchema.safeParse(req.body)
+
+    if (!success) {
+        return res.status(400).json({
+            error: z.flattenError(error).fieldErrors
+        })
+    }
+
+    const { username, email, password } = data
     const hashedPassword = await bcrypt.hash(password, 12)
     try {
-
         const rootDirId = new Types.ObjectId()
         const userId = new Types.ObjectId()
         await Directory.insertOne({
@@ -43,8 +52,15 @@ export const register = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
-    
-    const { email, password } = req.body
+    const { success, data, error } = loginSchema.safeParse(req.body)
+
+    if (!success) {
+        return res.status(400).json({
+            error: "Invalid credentials"
+        })
+    }
+
+    const { email, password } = data
 
     const user = await User.findOne({ email })
 
@@ -87,6 +103,7 @@ export const login = async (req, res, next) => {
     res.cookie("sid", sessionId, {
         httpOnly: true,
         signed: true,
+        sameSite: 'lax',
         maxAge: sessionExpiryTime
     })
 

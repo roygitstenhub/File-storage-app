@@ -3,13 +3,16 @@ import cors from "cors"
 import dotenv from "dotenv"
 dotenv.config()
 import cookieParser from "cookie-parser"
+import helmet from "helmet"
+import rateLimit from "express-rate-limit"
 import directoryRoutes from "./routes/directoryRoutes.js"
 import fileRoutes from "./routes/fileRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import checkAuth from "./middleware/auth.js"
 import authRoutes from "./routes/authRouter.js"
 import { connectDb } from "./database/db.js"
-
+import limiter from "./services/rateLimiter.js"
+// import throttle from "./services/throttling.js"
 
 const PORT = process.env.PORT || 3000
 
@@ -23,10 +26,14 @@ app.use(cors({
     credentials: true
 }))
 
+app.use(helmet())
+
+app.use(limiter)
+
 app.use("/directory", checkAuth, directoryRoutes)
 app.use("/file", checkAuth, fileRoutes)
 app.use("/", userRoutes)
-app.use("/auth",authRoutes)
+app.use("/auth", authRoutes)
 
 app.use((err, req, res, next) => {
     console.log(err)
@@ -34,6 +41,7 @@ app.use((err, req, res, next) => {
         error: "Something went wrong"
     })
 })
+
 
 //server creation code 
 app.listen(PORT, () => {

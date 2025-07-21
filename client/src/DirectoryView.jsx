@@ -99,7 +99,7 @@ function DirectoryView() {
 
   function handleRowClick(type, id) {
     if (type === "directory") navigate(`/directory/${id}`);
-    else window.location.href = `http://localhost:8000/file/${id}`;
+    else window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/file/${id}`;
   }
 
   function handleFileSelect(e) {
@@ -228,6 +228,20 @@ function DirectoryView() {
   useEffect(() => {
     const handleDocumentClick = () => setActiveContextMenu(null);
     document.addEventListener("click", handleDocumentClick);
+      console.log(
+      "%cHold Up!",
+      "font-size: 48px; font-weight: bold; color: #5865F2; text-shadow: 1px 1px 0 black;"
+    );
+
+    console.log(
+      "%cIf someone told you to copy/paste something here you have an 11/10 chance you're being scammed.",
+      "font-size: 16px; color: white;"
+    );
+
+    console.log(
+      "%cPasting anything in here could give attackers access to your account.",
+      "font-size: 20px; color: red; font-weight: bold;"
+    );
     return () => document.removeEventListener("click", handleDocumentClick);
   }, []);
 

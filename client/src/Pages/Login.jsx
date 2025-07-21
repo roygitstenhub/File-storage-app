@@ -6,8 +6,8 @@ import { loginUser } from "../apis/UserApi.js";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: "roydev@gmail.com",
-    password: "abcd",
+    email: "",
+    password: "",
   });
 
   const [serverError, setServerError] = useState("");
@@ -35,6 +35,18 @@ const Login = () => {
 
   return (
     <div className="max-w-md mx-auto p-5">
+      {
+        serverError && (
+          <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <div>
+              <span class="font-medium">{serverError}</span>
+            </div>
+          </div>
+        )
+      }
       <h2 className="text-center text-2xl font-semibold mb-3">Login</h2>
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <div className="relative mb-3">
@@ -67,13 +79,12 @@ const Login = () => {
             onChange={handleChange}
             className={`w-full p-2 border ${hasError ? "border-red-500" : "border-gray-300"} rounded`}
           />
-          {serverError && (
+          {/* {serverError && (
             <span className="absolute top-full left-0 text-red-500 text-xs mt-1">
               {serverError}
             </span>
-          )}
+          )} */}
         </div>
-
         <button
           type="submit"
           className="bg-blue-500 text-white py-2 rounded w-full font-medium hover:opacity-90"

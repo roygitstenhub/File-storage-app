@@ -6,9 +6,9 @@ import { registerUser } from "../apis/UserApi.js";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: "RoyDev",
-    email: "roydevr@gmail.com",
-    password: "abcd",
+    username: "",
+    email: "",
+    password: "",
   });
   const [serverError, setServerError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -72,9 +72,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!otpVerified) return setOtpError("Please verify your email with OTP.");
+    // if (!otpVerified) return setOtpError("Please verify your email with OTP.");
     try {
-      await registerUser({ ...formData, otp });
+      await registerUser({ ...formData});
       setIsSuccess(true);
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
@@ -90,9 +90,9 @@ const Register = () => {
           <label className="block mb-1 font-bold">Name</label>
           <input
             type="text"
-            name="name"
+            name="username"
             required
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded"
           />

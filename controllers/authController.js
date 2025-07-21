@@ -1,15 +1,22 @@
-import  { Types } from "mongoose";
+import { Types } from "mongoose";
 import User from "../model/userModel.js";
 import Directory from "../model/directoryModel.js";
 // import Session from "../model/sessionModel.js";
 import { verifyIdToken } from "../services/googleAuthServices.js";
 import redisClient from "../database/redis.js";
+import { googleOauthValidator } from "../validators/authSchema.js";
 
 export const loginWithGoogle = async (req, res, next) => {
 
     const { idToken } = req.body
     const userData = await verifyIdToken(idToken)
-    const { name, email, picture, sub } = userData
+    const { success, data } = googleOauthValidator.safeParse(userData)
+    if (!success) {
+        return res.status(400).json({
+            error: "Invalid credentials"
+        })
+    }
+    const { name, email, picture } = data
     const user = await User.findOne({ email }).select("-__v")
 
     if (user) {
@@ -40,13 +47,15 @@ export const loginWithGoogle = async (req, res, next) => {
         await redisClient.json.set(redisKey, "$", {
             userId: user._id,
             rootDirId: user.rootDirId,
-            role:user.role
+            role: user.role
         })
+
         const sessionExpiryTime = 60 * 1000 * 60 * 24 * 7
         await redisClient.expire(redisKey, sessionExpiryTime / 1000)
         res.cookie("sid", sessionId, {
             httpOnly: true,
             signed: true,
+            samesite: 'lax',
             maxAge: sessionExpiryTime
         })
 
@@ -84,6 +93,7 @@ export const loginWithGoogle = async (req, res, next) => {
         res.cookie("sid", sessionId, {
             httpOnly: true,
             signed: true,
+            sameSite: 'lax',
             maxAge: sessionExpiryTime
         })
 
