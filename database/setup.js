@@ -1,10 +1,15 @@
-import { connectDb, client } from "./db.js";
+import mongoose from "mongoose";
+import { connectDb } from "./db.js";
 
-const db = await connectDb()
+await connectDb()
+const client = mongoose.connection.getClient()
 
 try {
+    const db = mongoose.connection.db;
+    const command = "collMod"
+
     await db.command({
-        collMod: "users",
+        [command]: "users",
         validator: {
             $jsonSchema: {
                 bsonType: 'object',
@@ -23,6 +28,9 @@ try {
                         bsonType: 'string',
                         minLength: 3
                     },
+                    maxStorageInBytes: {
+                        bsonType: "long"
+                    },
                     email: {
                         bsonType: 'string',
                         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$'
@@ -33,7 +41,19 @@ try {
                     },
                     rootDirId: {
                         bsonType: 'objectId'
-                    }
+                    },
+                    picture: {
+                        bsonType: "string",
+                    },
+                    role: {
+                        enum: ["Admin", "Manager", "User"],
+                    },
+                    deleted: {
+                        bsonType: "bool",
+                    },
+                    __v: {
+                        bsonType: "int",
+                    },
                 },
                 additionalProperties: false
             }
@@ -43,13 +63,13 @@ try {
     })
 
     await db.command({
-        collMod: "directories",
+        [command]: "directories",
         validator: {
             $jsonSchema: {
                 required: [
-                    '_id',
+                    // '_id',
                     'name',
-                    'parentDirId',
+                    // 'parentDirId',
                     'userId'
                 ],
                 properties: {
@@ -59,6 +79,9 @@ try {
                     name: {
                         bsonType: 'string'
                     },
+                    size: {
+                        bsonType: "int",
+                    },
                     parentDirId: {
                         bsonType: [
                             'objectId',
@@ -67,7 +90,22 @@ try {
                     },
                     userId: {
                         bsonType: 'objectId'
-                    }
+                    },
+                    path: {
+                        bsonType: "array",
+                        items: {
+                            bsonType: "objectId"
+                        }
+                    },
+                    createdAt: {
+                        bsonType: "date",
+                    },
+                    updatedAt: {
+                        bsonType: "date",
+                    },
+                    __v: {
+                        bsonType: "int",
+                    },
                 },
                 additionalProperties: false
             }
@@ -77,35 +115,45 @@ try {
     })
 
     await db.command({
-        collMod: "files",
+        [command]: "files",
         validator: {
             $jsonSchema: {
                 required: [
                     '_id',
-                    'extension',
                     'name',
+                    'size',
+                    'extension',
+                    'userId',
                     'parentDirId',
-                    'userId'
                 ],
                 properties: {
                     _id: {
-                        bsonType: 'objectId'
+                        bsonType: "objectId",
+                    },
+                    name: {
+                        bsonType: "string",
+                    },
+                    size: {
+                        bsonType: "int",
                     },
                     extension: {
-                        bsonType: 'string'
-                    },
-                    name: {
-                        bsonType: 'string'
-                    },
-                    parentDirId: {
-                        bsonType: [
-                            'objectId',
-                            'null'
-                        ]
+                        bsonType: "string",
                     },
                     userId: {
-                        bsonType: 'objectId'
-                    }
+                        bsonType: "objectId",
+                    },
+                    parentDirId: {
+                        bsonType: "objectId",
+                    },
+                    createdAt: {
+                        bsonType: "date",
+                    },
+                    updatedAt: {
+                        bsonType: "date",
+                    },
+                    __v: {
+                        bsonType: "int",
+                    },
                 },
                 additionalProperties: false
             }
@@ -116,6 +164,6 @@ try {
 } catch (error) {
     console.log("Error setting up the database")
 } finally {
-    client.close()
+    await client.close()
 }
 

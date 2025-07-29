@@ -1,6 +1,8 @@
 import { rm } from "fs/promises";
+import mongoose from "mongoose";
 import Directory from "../model/directoryModel.js"
 import File from "../model/fileModel.js"
+import { updateDirSize } from "./filesControler.js";
 
 export const getDirectoryById = async (req, res) => {
     const user = req.user
@@ -13,6 +15,14 @@ export const getDirectoryById = async (req, res) => {
     const files = await File.find({ parentDirId: directoryData._id }).lean()
 
     const directories = await Directory.find({ parentDirId: _id }).lean()
+
+    const result = await Directory.findById(_id).populate('path')
+    let dirfullpath = ''
+    result.path.map((dir) => {
+        dirfullpath += `/${dir.name}`
+    })
+    console.log(dirfullpath)
+
 
     return res.status(200).json({
         ...directoryData,
@@ -33,10 +43,14 @@ export const createDirectory = async (req, res, next) => {
             return res.status(404).json({ message: "Parent directory does not exist" })
         }
 
+        const newId = new mongoose.Types.ObjectId()
+
         await Directory.insertOne({
+            _id: newId,
             name: dirname,
             parentDirId,
             userId: user._id,
+            path: [...(parentDir?.path || []), newId]
         })
 
         return res.status(201).json({
@@ -71,7 +85,7 @@ export const deleteDirectory = async (req, res, next) => {
     const { id } = req.params
 
     try {
-        const directoryData = await Directory.findOne({ _id: id, userId: req.user._id }).select("_id").lean()
+        const directoryData = await Directory.findOne({ _id: id, userId: req.user._id }).lean()
 
         if (!directoryData) {
             return res.status(404).json({ error: "Directory not found" })
@@ -100,6 +114,8 @@ export const deleteDirectory = async (req, res, next) => {
         await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } })
 
         await Directory.deleteMany({ _id: { $in: [...directories.map(({ _id }) => _id), id] } })
+
+        await updateDirSize(directoryData.parentDirId, -directoryData.size)
     } catch (error) {
         next(error)
     }

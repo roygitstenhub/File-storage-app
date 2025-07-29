@@ -22,6 +22,12 @@ function DirectoryHeader({
   const [userName, setUserName] = useState("Guest User");
   const [userEmail, setUserEmail] = useState("guest@example.com");
   const [userPicture, setUserPicture] = useState("");
+  const [maxStorageInBytes, setmaxStorageInBytes] = useState(1073741824)
+  const [usedStorageInBytes, setusedStorageInBytes] = useState(0)
+
+  const usedGB = usedStorageInBytes / 1024 ** 3
+  const totalGB = maxStorageInBytes / 1024 ** 3
+
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -31,6 +37,8 @@ function DirectoryHeader({
         const data = await fetchUser();
         setUserName(data.name);
         setUserEmail(data.email);
+        setmaxStorageInBytes(data.maxStorageInBytes)
+        setusedStorageInBytes(data.usedStorageInBytes)
         setLoggedIn(true);
       } catch (err) {
         setLoggedIn(false);
@@ -134,6 +142,17 @@ function DirectoryHeader({
                   <div className="px-3 py-2 text-sm text-gray-800">
                     <div className="font-semibold">{userName}</div>
                     <div className="text-xs text-gray-500">{userEmail}</div>
+                    <div className="flex flex-col text-xs mr-2 mt-2">
+                      <div className="w-40 h-1 bg-gray-300 rounded-full overflow-hidden mb-1">
+                        <div
+                          className="bg-blue-500 rounded-full h-full"
+                          style={{ width: `${(usedGB / totalGB) * 100}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs">
+                        {usedGB.toFixed(2)} GB of {totalGB} GB used
+                      </div>
+                    </div>
                   </div>
                   <div className="border-t border-gray-200" />
                   <div

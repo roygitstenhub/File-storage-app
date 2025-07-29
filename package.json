@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "setup": "node --env-file=.env database/setup.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

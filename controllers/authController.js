@@ -7,7 +7,6 @@ import redisClient from "../database/redis.js";
 import { googleOauthValidator } from "../validators/authSchema.js";
 
 export const loginWithGoogle = async (req, res, next) => {
-
     const { idToken } = req.body
     const userData = await verifyIdToken(idToken)
     const { success, data } = googleOauthValidator.safeParse(userData)
@@ -85,8 +84,8 @@ export const loginWithGoogle = async (req, res, next) => {
         const sessionId = crypto.randomUUID()
         const redisKey = `session:${sessionId}`
         await redisClient.json.set(redisKey, "$", {
-            userId: user._id,
-            rootDirId: user.rootDirId,
+            userId: userId,
+            rootDirId:rootDirId,
         })
         const sessionExpiryTime = 60 * 1000 * 60 * 24 * 7
         await redisClient.expire(redisKey, sessionExpiryTime / 1000)

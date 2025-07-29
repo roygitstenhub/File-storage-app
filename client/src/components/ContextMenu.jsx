@@ -9,6 +9,8 @@ function ContextMenu({ item, isUploadingItem }) {
     BASE_URL,
   } = useDirectoryContext();
 
+  const BAKEND_URL = import.meta.env.VITE_BACKEND_BASE_UR
+
   const menuClass =
     "absolute bg-white border border-blue-400 shadow-md rounded text-sm z-50 right-2 top-4/5 overflow-hidden";
   const itemClass = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
@@ -46,9 +48,9 @@ function ContextMenu({ item, isUploadingItem }) {
     <div className={menuClass}>
       <div
         className={itemClass}
-        onClick={() =>
-          (window.location.href = `${BASE_URL}/file/${item.id}?action=download`)
-        }
+        onClick={() =>{
+           (window.location.href = `${BAKEND_URL}/file/${item.id}?action=download`)
+        }}
       >
         Download
       </div>

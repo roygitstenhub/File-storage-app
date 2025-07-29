@@ -108,6 +108,7 @@ function DirectoryView() {
 
     const newItems = selectedFiles.map((file) => ({
       file,
+      size:file.size,
       name: file.name,
       id: `temp-${Date.now()}-${Math.random()}`,
       isUploading: false,
@@ -145,6 +146,7 @@ function DirectoryView() {
     xhr.open("POST", `http://localhost:8000/file/${dirId || ""}`);
     xhr.withCredentials = true;
     xhr.setRequestHeader("filename", currentItem.name);
+    xhr.setRequestHeader("filesize", currentItem.size);
 
     xhr.upload.addEventListener("progress", (evt) => {
       if (evt.lengthComputable) {

@@ -115,11 +115,14 @@ export const login = async (req, res, next) => {
 
 export const getCurrentUser = async (req, res) => {
     const user = await User.findById(req.user._id).lean()
+    const rootDir = await Directory.findById(user.rootDirId).lean()
     res.status(200).json({
         name: user.username,
         email: user.email,
         picture: user.picture,
-        role: user.role
+        role: user.role,
+        maxStorageInBytes:user.maxStorageInBytes,
+        usedStorageInBytes:rootDir.size
     })
 }
 

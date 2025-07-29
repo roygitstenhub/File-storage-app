@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { type } from "os";
 
 const userSchema = new Schema(
   {
@@ -35,6 +36,11 @@ const userSchema = new Schema(
       type: String,
       enum: ["Admin", "Manager", "User"],
       default: "User",
+    },
+    maxStorageInBytes: {
+      type: Number,
+      require: true,
+      default: 1 * 1024 ** 3,
     },
     deleted: {
       type: Boolean,

@@ -5,6 +5,10 @@ const fileSchema = new Schema({
         type:String,
         required:true
     },
+     size:{
+        type:Number,
+        required:true
+    },
     extension: {
         type: String,
         required: true,
@@ -20,7 +24,8 @@ const fileSchema = new Schema({
 
     },
 },{
-    strict:"throw"
+    strict:"throw",
+    timestamps:true,
 })
 
 const File = model("File", fileSchema)
