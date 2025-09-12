@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 
 function DirectoryHeader({
+  item,
   directoryName,
   onCreateFolderClick,
   onUploadFilesClick,
@@ -37,6 +38,7 @@ function DirectoryHeader({
         const data = await fetchUser();
         setUserName(data.name);
         setUserEmail(data.email);
+        setUserPicture(data.picture)
         setmaxStorageInBytes(data.maxStorageInBytes)
         setusedStorageInBytes(data.usedStorageInBytes)
         setLoggedIn(true);
@@ -92,19 +94,38 @@ function DirectoryHeader({
   }, []);
 
   return (
-    <header className="flex items-center justify-between border-b border-gray-300 py-2 mb-4">
-      <h1 className="text-xl font-semibold">{directoryName}</h1>
-      <div className="flex gap-4 items-end">
+    <header className="flex items-center justify-between py-2 mb-0 ">
+      {
+        item && (<nav className="flex space-x-2 text-sm ">
+          <span className=" text-black font-semibold  ">My Drive :  </span>
+          {item.map((dir, index) => (
+            <div key={index} className="flex items-center">
+              <span className={index === item.length - 1 ? 'font-semibold text-blue-500 ' : 'text-gray-500'}>
+                <a href={`/directory/${dir._id}`} className="">
+                  {dir.name}
+                </a>
+              </span>
+              {index !== item.length - 1 && (
+                <span className="mx-1 text-gray-400 ">{'/'}</span>
+              )}
+            </div>
+          ))}
+        </nav>)
+      }
+
+      <div className="flex gap-4 items-center justify-center ">
         <button
-          className="text-blue-500 hover:text-blue-700 text-xl -mb-0.5 mr-0.5 disabled:text-blue-300 disabled:cursor-not-allowed"
-          title="Create Folder"
+          className="text-white w-13 h-13 hover:text-white text-xl -mb-0.5 mr-0.5 disabled:text-indigo-300   cursor-pointer
+          fixed bottom-2 right-5 z-[99] bg-[#6A4BFF] hover:bg-indigo-700   px-4 py-4  rounded-full shadow-lg transition duration-300"
+          title="Create Folder  "
           onClick={onCreateFolderClick}
           disabled={disabled}
         >
           <FaFolderPlus />
         </button>
         <button
-          className="text-blue-500 hover:text-blue-700 text-xl disabled:text-blue-300 disabled:cursor-not-allowed"
+          className="text-white hover:text-white text-xl disabled:text-indigo-300 cursor-pointer
+          fixed bottom-5 left-5 z-[99] bg-[#6A4BFF] hover:bg-indigo-700  px-5 py-3 rounded-full shadow-lg transition duration-300 hidden "
           title="Upload Files"
           onClick={onUploadFilesClick}
           disabled={disabled}
@@ -119,15 +140,30 @@ function DirectoryHeader({
           multiple
           onChange={handleFileSelect}
         />
-        <div className="relative flex" ref={userMenuRef}>
+
+
+        <div class="bg-white flex px-1 py-1 rounded-full border border-indigo-500 overflow-hidden max-w-xl mx-auto">
+          <input type='email' placeholder='Search Something...' class="w-full outline-none bg-white pl-4 text-sm" />
+          <button type='button'
+            class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-full px-5 py-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px" fill="currentColor" className="text-white">
+              <path
+                d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
+              </path>
+            </svg>
+          </button>
+        </div>
+
+
+        <div className="relative flex " ref={userMenuRef}>
           <button
-            className="text-blue-500 hover:text-blue-700 text-xl"
+            className="text-[#6A4BFF] hover:text-blue-700 "
             title="User Menu"
             onClick={handleUserIconClick}
           >
             {userPicture ? (
               <img
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover  "
                 src={userPicture}
                 alt={userName}
               />
@@ -136,7 +172,7 @@ function DirectoryHeader({
             )}
           </button>
           {showUserMenu && (
-            <div className="absolute right-0 top-4 mt-2 w-48 bg-white rounded-md shadow-md z-10 border border-gray-300 overflow-hidden">
+            <div className="absolute right-0 top-8 mt-2 w-78 bg-white rounded-md shadow-md z-10 border border-gray-300 overflow-hidden">
               {loggedIn ? (
                 <>
                   <div className="px-3 py-2 text-sm text-gray-800">
@@ -145,7 +181,7 @@ function DirectoryHeader({
                     <div className="flex flex-col text-xs mr-2 mt-2">
                       <div className="w-40 h-1 bg-gray-300 rounded-full overflow-hidden mb-1">
                         <div
-                          className="bg-blue-500 rounded-full h-full"
+                          className="bg-indigo-500 rounded-full h-full"
                           style={{ width: `${(usedGB / totalGB) * 100}%` }}
                         ></div>
                       </div>
@@ -159,13 +195,13 @@ function DirectoryHeader({
                     className="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-200 px-4 py-2"
                     onClick={handleLogout}
                   >
-                    <FaSignOutAlt className="text-blue-600" /> Logout
+                    <FaSignOutAlt className="text-indigo-500" /> Logout
                   </div>
                   <div
                     className="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-200 px-4 py-2"
                     onClick={handleLogoutAll}
                   >
-                    <FaSignOutAlt className="text-blue-600" /> Logout All
+                    <FaSignOutAlt className="text-indigo-500" /> Logout All
                   </div>
                 </>
               ) : (

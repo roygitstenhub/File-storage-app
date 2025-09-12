@@ -27,3 +27,15 @@ export const uploadFileWithProgress = async (
   });
   return data;
 };
+
+export const uploadInitiate = async (fileData) => {
+  const { data } = await axiosWithCreds.post(`/file/upload/initiate`,fileData);
+  return data;
+};
+
+export const uploadComplete = async (fileId) => {
+  const { data } = await axiosWithCreds.post(`/file/upload/complete`,{fileId});
+  return data;
+};
+
+

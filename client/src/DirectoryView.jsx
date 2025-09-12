@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, resolvePath } from "react-router-dom";
 import DirectoryHeader from "./components/DirectoryHeader";
 import CreateDirectoryModal from "./components/CreateDirectoryModal";
 import RenameModal from "./components/RenameModal";
@@ -13,9 +13,12 @@ import {
   renameDirectory,
 } from "./apis/directoryApi.js";
 
-import { deleteFile, renameFile } from "./apis/fileApi.js";
+import { deleteFile, renameFile, uploadComplete, uploadInitiate } from "./apis/fileApi.js";
 import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
+import StorageIndicator from "./components/StorageIndicator";
+import UploadingSpace from "./components/UploadingSpace";
+import { fetchUser } from "./apis/UserApi";
 
 function DirectoryView() {
   const { dirId } = useParams();
@@ -33,35 +36,49 @@ function DirectoryView() {
   const [renameValue, setRenameValue] = useState("");
 
   const fileInputRef = useRef(null);
+
+    // Single-file upload state
+  const [uploadItem, setUploadItem] = useState(null); // { id, file, name, size, progress, isUploading }
+  const xhrRef = useRef(null);
+
   const [uploadQueue, setUploadQueue] = useState([]);
   const [uploadXhrMap, setUploadXhrMap] = useState({});
-  const [progressMap, setProgressMap] = useState({});
-  const [isUploading, setIsUploading] = useState(false);
+
   const [activeContextMenu, setActiveContextMenu] = useState(null);
   const [detailsItem, setDetailsItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
+  const [dirpath,setDirPath] = useState("")
+  const [path,setPath] = useState([])
+  const [storageIndicator,setStorageIndicator] = useState({maxstorage:0,usedstorage:0})
 
   const openDetailsPopup = (item) => {
-    console.log(item);
     setDetailsItem(item);
   };
+
+
   const closeDetailsPopup = () => setDetailsItem(null);
 
   const loadDirectory = async () => {
     try {
       const data = await getDirectoryItems(dirId);
+      setStorageIndicator(data?.size)
       setDirectoryName(dirId ? data.name : "My Drive");
       setDirectoriesList([...data.directories].reverse());
       setFilesList([...data.files].reverse());
+      setDirPath(dirId ? data.resolvepath: "")
+      setPath([...data.breadcrumb])
     } catch (err) {
       if (err.response?.status === 401) navigate("/login");
       else setErrorMessage(err.response?.data?.error || err.message);
     }
   };
 
+  
+
   useEffect(() => {
     loadDirectory();
     setActiveContextMenu(null);
+    
   }, [dirId]);
 
   function getFileIcon(filename) {
@@ -102,80 +119,163 @@ function DirectoryView() {
     else window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/file/${id}`;
   }
 
-  function handleFileSelect(e) {
-    const selectedFiles = Array.from(e.target.files);
-    if (!selectedFiles.length) return;
+  async function handleFileSelect(e) {
+    // const selectedFiles = Array.from(e.target.files);
+    // if (!selectedFiles.length) return;
 
-    const newItems = selectedFiles.map((file) => ({
-      file,
-      size:file.size,
-      name: file.name,
-      id: `temp-${Date.now()}-${Math.random()}`,
-      isUploading: false,
-    }));
+    // const newItems = selectedFiles.map((file) => ({
+    //   file,
+    //   size:file.size,
+    //   name: file.name,
+    //   id: `temp-${Date.now()}-${Math.random()}`,
+    //   isUploading: false,
+    // }));
 
-    setFilesList((prev) => [...newItems, ...prev]);
-    newItems.forEach((item) => {
-      setProgressMap((prev) => ({ ...prev, [item.id]: 0 }));
-    });
-    setUploadQueue((prev) => [...prev, ...newItems]);
-    e.target.value = "";
+    // setFilesList((prev) => [...newItems, ...prev]);
+    // newItems.forEach((item) => {
+    //   setProgressMap((prev) => ({ ...prev, [item.id]: 0 }));
+    // });
+    // setUploadQueue((prev) => [...prev, ...newItems]);
+    // e.target.value = "";
 
-    if (!isUploading) {
-      setIsUploading(true);
-      processUploadQueue([...uploadQueue, ...newItems.reverse()]);
-    }
-  }
+    // if (!isUploading) {
+    //   setIsUploading(true);
+    //   processUploadQueue([...uploadQueue, ...newItems.reverse()]);
+    // }
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  function processUploadQueue(queue) {
-    if (!queue.length) {
-      setIsUploading(false);
-      setUploadQueue([]);
-      setTimeout(() => loadDirectory(), 1000);
+    if (uploadItem?.isUploading) {
+      setErrorMessage("An upload is already in progress. Please wait.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      e.target.value = "";
       return;
     }
 
-    const [currentItem, ...restQueue] = queue;
-    setFilesList((prev) =>
-      prev.map((f) =>
-        f.id === currentItem.id ? { ...f, isUploading: true } : f
-      )
-    );
+    const tempItem = {
+      file,
+      name: file.name,
+      size: file.size,
+      id: `temp-${Date.now()}`,
+      isUploading: true,
+      progress: 0,
+    };
 
+    try {
+      const data = await uploadInitiate({
+      name: file.name,
+      size: file.size,
+      contentType:file.type,
+      parentDirId:dirId,
+    })
+    
+    const {uploadSignedUrl,fileId}= data
+
+    // Optimistically show the file in the list
+    setFilesList((prev) => [tempItem, ...prev]);
+    setUploadItem(tempItem);
+    e.target.value = "";
+
+    startUpload({item:tempItem,uploadUrl:uploadSignedUrl,fileId});
+    } catch (error) {
+      setErrorMessage(error.response.data.error)
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  }
+
+
+  function startUpload({item,uploadUrl,fileId}) {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `http://localhost:8000/file/${dirId || ""}`);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("filename", currentItem.name);
-    xhr.setRequestHeader("filesize", currentItem.size);
+    xhrRef.current = xhr;
+    // xhr.open("POST", `http://localhost:8000/file/${dirId || ""}`);
+    xhr.open("PUT",uploadUrl)
+    // xhr.withCredentials = true;
+    // xhr.setRequestHeader("filename", item.name);
+    // xhr.setRequestHeader("filesize", item.size);
 
     xhr.upload.addEventListener("progress", (evt) => {
       if (evt.lengthComputable) {
         const progress = (evt.loaded / evt.total) * 100;
-        setProgressMap((prev) => ({ ...prev, [currentItem.id]: progress }));
+        setUploadItem((prev) => (prev ? { ...prev, progress } : prev));
       }
     });
 
-    xhr.onload = () => processUploadQueue(restQueue);
-    xhr.onerror = () => processUploadQueue(restQueue);
+    xhr.onload = async() => {
+      // Clear upload state and refresh directory
+      if(xhr.status === 200){
+         await uploadComplete(fileId)
+      }else{
+        setErrorMessage("File not uploaded")
+        setTimeout(() => setErrorMessage(""), 3000);
+      }
+      setUploadItem(null);
+      loadDirectory();
+    };
 
-    setUploadXhrMap((prev) => ({ ...prev, [currentItem.id]: xhr }));
-    xhr.send(currentItem.file);
+    xhr.onerror = () => {
+      setErrorMessage("Something went wrong");
+      // Remove temp item from the list
+      setFilesList((prev) => prev.filter((f) => f.id !== item.id));
+      setUploadItem(null);
+      setTimeout(() => setErrorMessage(""), 3000);
+    };
+    xhr.send(item.file);
   }
+  // function processUploadQueue(queue) {
+  //   if (!queue.length) {
+  //     setIsUploading(false);
+  //     setUploadQueue([]);
+  //     setTimeout(() => loadDirectory(), 1000);
+  //     return;
+  //   }
+
+  //   const [currentItem, ...restQueue] = queue;
+  //   setFilesList((prev) =>
+  //     prev.map((f) =>
+  //       f.id === currentItem.id ? { ...f, isUploading: true } : f
+  //     )
+  //   );
+
+  //   const xhr = new XMLHttpRequest();
+  //   xhr.open("POST", `http://localhost:8000/file/${dirId || ""}`);
+  //   xhr.withCredentials = true;
+  //   xhr.setRequestHeader("filename", currentItem.name);
+  //   xhr.setRequestHeader("filesize", currentItem.size);
+
+  //   xhr.upload.addEventListener("progress", (evt) => {
+  //     if (evt.lengthComputable) {
+  //       const progress = (evt.loaded / evt.total) * 100;
+  //       setProgressMap((prev) => ({ ...prev, [currentItem.id]: progress }));
+  //     }
+  //   });
+
+  //   xhr.onload = () => processUploadQueue(restQueue);
+  //   xhr.onerror = () => processUploadQueue(restQueue);
+
+  //   setUploadXhrMap((prev) => ({ ...prev, [currentItem.id]: xhr }));
+  //   xhr.send(currentItem.file);
+  // }
 
   function handleCancelUpload(tempId) {
-    const xhr = uploadXhrMap[tempId];
-    if (xhr) xhr.abort();
-    setUploadQueue((prev) => prev.filter((item) => item.id !== tempId));
+    // const xhr = uploadXhrMap[tempId];
+    // if (xhr) xhr.abort();
+    // setUploadQueue((prev) => prev.filter((item) => item.id !== tempId));
+    // setFilesList((prev) => prev.filter((f) => f.id !== tempId));
+    // setProgressMap((prev) => {
+    //   const { [tempId]: _, ...rest } = prev;
+    //   return rest;
+    // });
+    // setUploadXhrMap((prev) => {
+    //   const copy = { ...prev };
+    //   delete copy[tempId];
+    //   return copy;
+    // });
+     if (uploadItem && uploadItem.id === tempId && xhrRef.current) {
+      xhrRef.current.abort();
+    }
+    // Remove temp item and reset state
     setFilesList((prev) => prev.filter((f) => f.id !== tempId));
-    setProgressMap((prev) => {
-      const { [tempId]: _, ...rest } = prev;
-      return rest;
-    });
-    setUploadXhrMap((prev) => {
-      const copy = { ...prev };
-      delete copy[tempId];
-      return copy;
-    });
+    setUploadItem(null);
   }
 
   async function confirmDelete(item) {
@@ -248,9 +348,14 @@ function DirectoryView() {
   }, []);
 
   const combinedItems = [
-    ...directoriesList.map((d) => ({ ...d, isDirectory: true })),
-    ...filesList.map((f) => ({ ...f, isDirectory: false })),
+    ...directoriesList.map((d) => ({ ...d, isDirectory: true,dirpath})),
+    ...filesList.map((f) => ({ ...f, isDirectory: false ,dirpath})),
   ];
+
+  const isUploading = !!uploadItem?.isUploading;
+  const progressMap = uploadItem
+    ? { [uploadItem.id]: uploadItem.progress || 0 }
+    : {};
 
   return (
     <DirectoryContext.Provider
@@ -271,14 +376,16 @@ function DirectoryView() {
         openDetailsPopup,
       }}
     >
-      <div className="mx-2 md:mx-4">
+  
+      <div className="mx-2 md:mx-4  ">
         {errorMessage &&
           errorMessage !==
             "Directory not found or you do not have access to it!" && (
             <div className="error-message">{errorMessage}</div>
           )}
 
-        <DirectoryHeader
+          <DirectoryHeader
+          item={path}
           directoryName={directoryName}
           onCreateFolderClick={() => setShowCreateDirModal(true)}
           onUploadFilesClick={() => fileInputRef.current.click()}
@@ -313,8 +420,10 @@ function DirectoryView() {
           <DetailsPopup item={detailsItem} onClose={closeDetailsPopup} />
         )}
 
-        {combinedItems.length === 0 ? (
-          errorMessage ===
+        <div className="min-h-screen p-4 grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-8xl mx-auto bg-[#F6F9FF]   ">
+          <div className="lg:col-span-3 space-y-6 bg-[#F6F9FF]  p-4 ">
+           {combinedItems.length === 0 ? (
+           errorMessage ===
           "Directory not found or you do not have access to it!" ? (
             <p className="text-center text-gray-600 mt-4 italic">
               Directory not found or you do not have access to it!
@@ -328,7 +437,18 @@ function DirectoryView() {
         ) : (
           <DirectoryList items={combinedItems} />
         )}
+          </div>
 
+          <div className=" h-fit lg:col-span-1 bg-[#FFFFFF] p-4 rounded-md ">
+              <UploadingSpace  
+                onUploadFilesClick={() => fileInputRef.current.click()}
+                fileInputRef={fileInputRef}
+                handleFileSelect={handleFileSelect}
+              />
+              <StorageIndicator item={storageIndicator} />
+          </div>
+        </div>
+          
         {deleteItem && (
           <ConfirmDeleteModal
             item={deleteItem}

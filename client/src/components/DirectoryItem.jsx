@@ -12,6 +12,23 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import ContextMenu from "./ContextMenu";
 import { useDirectoryContext } from "../context/DirectoryContext";
 import { formatSize } from "./DetailsPopup";
+import { formatDistanceToNow } from "date-fns"
+import { enUS } from "date-fns/locale"
+import Spinner from "./Spinner";
+
+export  const dateFormat = (item)=>{
+  console.log("item", item)
+   const date = formatDistanceToNow(new Date(item.createdAt), { addSuffix: true,locale: {
+          ...enUS,
+          formatDistance: (token, count, options) => {
+            // Get the default formatting
+            const result = enUS.formatDistance(token, count, options);
+            // Remove the word "about" if it exists
+            return result.replace("about ", "");
+          },
+        }, })
+    return date
+  }
 
 function DirectoryItem({ item, uploadProgress }) {
   const {
@@ -21,6 +38,10 @@ function DirectoryItem({ item, uploadProgress }) {
     getFileIcon,
     isUploading,
   } = useDirectoryContext();
+
+
+  // if (!item?.createdAt) return <Spinner/>;
+
 
   function renderFileIcon(iconString) {
     switch (iconString) {
@@ -42,9 +63,76 @@ function DirectoryItem({ item, uploadProgress }) {
 
   const isUploadingItem = item.id.startsWith("temp-");
 
+
+// bg-gradient-to-l from-[#fff] to-[#6A4BFF]
   return (
-    <div
-      className="flex flex-col justify-between px-3 py-1 hover:bg-blue-100 border border-gray-300 hover:border-blue-500 rounded cursor-pointer relative"
+     <div
+      className="  bg-white bg-gradient-to-t from-[#fff] to-[#6A4BFF] flex flex-col justify-between p-4 hover:bg-indigo-200 border-gray-300 hover:border-indigo-500 rounded cursor-pointer relative shadow-[0px_2px_8px_0px_rgba(99,99,99,0.2)]   "
+      onClick={() =>
+        !(activeContextMenu || isUploading) &&
+        handleRowClick(item.isDirectory ? "directory" : "file", item.id)
+      }
+      onContextMenu={(e) => handleContextMenu(e, item.id)}
+    >
+
+      <div className="flex flex-col justify-between" title={`Size : ${formatSize(item.size)}\nCreated At : ${new Date(item.createdAt).toLocaleString()}`}>
+        <div className="flex items-center w-full justify-between gap-2">
+          {item.isDirectory ? (
+            <span className="p-2 rounded-lg bg-blue-50"><FaFolder className="text-amber-500 text-lg" /></span>
+       
+          ) : (
+            <span className="p-2 rounded-lg bg-blue-50 text-[#6A4BFF] ">{renderFileIcon(getFileIcon(item.name))}</span>
+          )}
+        <div
+          className="text-white hover:text-gray-800 cursor-pointer hover:bg-blue-200 p-2 rounded-full"
+          onClick={(e) => handleContextMenu(e, item.id)}
+        >
+          <BsThreeDotsVertical />
+        </div>
+
+        </div>
+
+        <span className="font-semibold text-gray-600 truncate mt-3 text-sm  ">{item.name}</span>
+
+        <div className=" mt-2 py-2 flex  justify-between border-gray-100">
+            <span class="text-blue-600 text-[12px] font-semibold bg-blue-50 px-2 py-1 tracking-wide rounded-sm">
+               { item.createdAt? dateFormat(item) : 'updating...'}
+            </span>
+
+            <span class="text-green-600 text-[12px]  font-semibold bg-green-50 px-2 py-1 tracking-wide rounded-sm">
+                {formatSize(item.size)}
+            </span>
+        </div>
+
+        {activeContextMenu === item.id && (
+          <ContextMenu item={item} isUploadingItem={isUploadingItem} />
+        )}
+      </div>
+      
+      {isUploadingItem && (
+        <div className="px-0 relative">
+          <span
+            className={`text-xs font-medium  ${uploadProgress > 50 ? "text-[#6A4BFF]" : "text-gray-600"} text-right block absolute left-1/2 top-[-20px] -translate-1/2 p-1.5 rounded-md `}
+          >
+            {Math.floor(uploadProgress)}%
+          </span>
+          <div className="w-full bg-gray-200 h-2 rounded">
+            <div
+              className="h-2 rounded"
+              style={{
+                width: `${uploadProgress}%`,
+                backgroundColor: uploadProgress > 50 ? "#00C950" : "#6A4BFF",
+              }}
+            ></div>
+          </div>
+        </div>
+      )}
+    </div> 
+  );
+}
+
+{/* <div
+      className=" bg-white flex flex-col justify-between  px-3 py-1 hover:bg-indigo-100  border-gray-300 hover:border-indigo-500 rounded cursor-pointer relative"
       onClick={() =>
         !(activeContextMenu || isUploading) &&
         handleRowClick(item.isDirectory ? "directory" : "file", item.id)
@@ -58,8 +146,10 @@ function DirectoryItem({ item, uploadProgress }) {
           ) : (
             renderFileIcon(getFileIcon(item.name))
           )}
-          <span className="text-gray-800 truncate">{item.name}</span>
+            <span className="text-gray-800 truncate">{item.name}</span>
+
         </div>
+
         <div
           className="text-gray-600 hover:text-gray-800 cursor-pointer hover:bg-blue-200 p-2 rounded-full"
           onClick={(e) => handleContextMenu(e, item.id)}
@@ -88,9 +178,7 @@ function DirectoryItem({ item, uploadProgress }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+    </div>  */}
 
 export default DirectoryItem;
 

@@ -34,22 +34,51 @@ const Login = () => {
   const hasError = Boolean(serverError);
 
   return (
-    <div className="max-w-md mx-auto p-5">
+    <div className="max-w-md mx-auto p-5  flex flex-col items-center justify-center w-full h-screen  ">
       {
         serverError && (
-          <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>
-            <div>
-              <span class="font-medium">{serverError}</span>
+          <div class="flex items-start bg-red-100 text-red-800 p-4 rounded-lg relative" role="alert">
+            <div class="inline-block">
+              <span class="font-semibold text-[15px] inline-block mr-4">Error!</span>
+              <span class="block text-sm font-medium sm:inline max-sm:mt-2 mr-4">{serverError}</span>
             </div>
           </div>
         )
       }
-      <h2 className="text-center text-2xl font-semibold mb-3">Login</h2>
-      <form className="flex flex-col" onSubmit={handleSubmit}>
-        <div className="relative mb-3">
+      <h2 className="text-center text-2xl font-semibold mb-3">Login</h2> 
+      <form className="flex flex-col w-full  " onSubmit={handleSubmit}>
+
+        <div className="mb-2">
+          <label class="mb-2 text-sm text-slate-900 font-medium block">Email</label>
+          <div class="relative flex items-center">
+            <input id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="px-4 py-3 pr-8 bg-[#f0f1f2] focus:bg-transparent text-black w-full text-sm border border-gray-200 outline-[#6A4BFF] rounded-md transition-all" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb" class="w-[18px] h-[18px] absolute right-4"
+              viewBox="0 0 682.667 682.667">
+              <defs>
+                <clipPath id="a" clipPathUnits="userSpaceOnUse">
+                  <path d="M0 512h512V0H0Z" data-original="#000000"></path>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#a)" transform="matrix(1.33 0 0 -1.33 0 682.667)">
+                <path fill="none" stroke-miterlimit="10" stroke-width="40"
+                  d="M452 444H60c-22.091 0-40-17.909-40-40v-39.446l212.127-157.782c14.17-10.54 33.576-10.54 47.746 0L492 364.554V404c0 22.091-17.909 40-40 40Z"
+                  data-original="#000000"></path>
+                <path
+                  d="M472 274.9V107.999c0-11.027-8.972-20-20-20H60c-11.028 0-20 8.973-20 20V274.9L0 304.652V107.999c0-33.084 26.916-60 60-60h392c33.084 0 60 26.916 60 60v196.653Z"
+                  data-original="#000000"></path>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        {/* <div className="relative mb-3">
           <label htmlFor="email" className="block mb-1 font-bold">
             Email
           </label>
@@ -63,9 +92,29 @@ const Login = () => {
             onChange={handleChange}
             className={`w-full p-2 border ${hasError ? "border-red-500" : "border-gray-300"} rounded`}
           />
+        </div> */}
+
+        <div className="mb-2">
+          <label class="mb-2 text-sm text-slate-900 font-medium block">Password</label>
+          <div class="relative flex items-center">
+            <input id="password"
+              name="password"
+              type="password"
+              required
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="px-4 py-3 pr-8 bg-[#f0f1f2] focus:bg-transparent text-black w-full text-sm border border-gray-200 outline-[#6A4BFF] rounded-md transition-all" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb"
+              class="w-[18px] h-[18px] absolute right-4 cursor-pointer" viewBox="0 0 128 128">
+              <path
+                d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z"
+                data-original="#000000"></path>
+            </svg>
+          </div>
         </div>
 
-        <div className="relative mb-3">
+        {/* <div className="relative mb-3">
           <label htmlFor="password" className="block mb-1 font-bold">
             Password
           </label>
@@ -79,15 +128,11 @@ const Login = () => {
             onChange={handleChange}
             className={`w-full p-2 border ${hasError ? "border-red-500" : "border-gray-300"} rounded`}
           />
-          {/* {serverError && (
-            <span className="absolute top-full left-0 text-red-500 text-xs mt-1">
-              {serverError}
-            </span>
-          )} */}
-        </div>
+        </div> */}
+
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 rounded w-full font-medium hover:opacity-90"
+          className="bg-[#6A4BFF] text-white py-2 rounded w-full font-semibold tracking-widest hover:opacity-90 mt-2 "
         >
           Login
         </button>
@@ -95,7 +140,7 @@ const Login = () => {
 
       <p className="text-center mt-3">
         Don't have an account?{" "}
-        <Link className="text-blue-600 hover:underline" to="/register">
+        <Link className="text-[#6A4BFF] hover:underline" to="/register">
           Register
         </Link>
       </p>
@@ -105,7 +150,7 @@ const Login = () => {
         <span className="relative bg-white px-2 text-sm text-gray-600">Or</span>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center  rounded-sm w-full ">
         <GoogleLogin
           onSuccess={async (credentialResponse) => {
             try {
@@ -116,8 +161,10 @@ const Login = () => {
             }
           }}
           onError={() => console.log("Login Failed")}
-          theme="filled_blue"
+          theme="filled"
           text="continue_with"
+          size="large"
+          width=""
           useOneTap
         />
       </div>

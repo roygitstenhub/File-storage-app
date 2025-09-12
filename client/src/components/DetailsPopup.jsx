@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 export const formatSize = (bytes = 0) => {
     const KB = 1024
     const MB = KB * 1024
@@ -11,7 +12,6 @@ export const formatSize = (bytes = 0) => {
 
 function DetailsPopup({ item, onClose }) {
     if (!item) return null;
-
     const [details, setDetails] = useState({
         path: "/",
         size: 0,
@@ -21,8 +21,8 @@ function DetailsPopup({ item, onClose }) {
         numberOfFolders: 0,
     });
 
-    const { id, name, isDirectory, size, createdAt, updatedAt, } = item;
-    const { path, numberOfFiles, numberOfFolders } = details;
+    const { id, name, isDirectory, size, createdAt, updatedAt, dirpath} = item;
+    const {  numberOfFiles, numberOfFolders } = details;
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -47,7 +47,7 @@ function DetailsPopup({ item, onClose }) {
                         <span className="font-semibold">Name:</span> {name}
                     </div>
                     <div>
-                        <span className="font-semibold">Path:</span> {path}
+                        <span className="font-semibold">Path:</span>{`${dirpath}/${name}`}
                     </div>
                     <div>
                         <span className="font-semibold">Size:</span>{formatSize(size)}
@@ -72,7 +72,7 @@ function DetailsPopup({ item, onClose }) {
                 </div>
                 <div className="flex justify-end mt-2">
                     <button
-                        className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                        className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-400"
                         onClick={onClose}
                     >
                         Close

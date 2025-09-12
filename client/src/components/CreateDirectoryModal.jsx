@@ -48,14 +48,14 @@ function CreateDirectoryModal({
           <input
             ref={inputRef}
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
             placeholder="Enter folder name"
             value={newDirname}
             onChange={(e) => setNewDirname(e.target.value)}
           />
           <div className="flex justify-end gap-2 mt-4">
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
               type="submit"
             >
               Create

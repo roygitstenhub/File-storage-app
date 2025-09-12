@@ -23,6 +23,9 @@ const fileSchema = new Schema({
         ref:"Directory"
 
     },
+    isUploading:{
+        type:Schema.Types.Boolean,
+    }
 },{
     strict:"throw",
     timestamps:true,

@@ -1,6 +1,6 @@
 import express from "express"
 import validateIdMiddleware from "../middleware/validateIdMiddleware.js"
-import { deleteFile, getFile, renameFile, upLoadFile } from "../controllers/filesControler.js"
+import { deleteFile, getFile, renameFile,uploadInitiate, uploadComplete, upLoadFile } from "../controllers/filesControler.js"
 // import limiter from "../services/rateLimiter.js"
 // import throttle from "../services/throttling.js"
 const router = express.Router()
@@ -8,6 +8,10 @@ const router = express.Router()
 
 router.param("parentDirId", validateIdMiddleware)
 router.param("id", validateIdMiddleware)
+
+//AWS routes
+router.post('/upload/initiate',uploadInitiate)
+router.post('/upload/complete',uploadComplete)
 
 //Create
 router.post('/:parentDirId?', upLoadFile)

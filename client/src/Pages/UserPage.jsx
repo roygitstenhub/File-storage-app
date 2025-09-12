@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '../helper/ConfirmModel';
+import { dateFormat } from '../components/DirectoryItem';
 
 
 export default function UsersPage() {
@@ -76,7 +77,7 @@ export default function UsersPage() {
         setIsModalOpen(true);
     };
 
- 
+
     const logoutUser = (user) => {
         const { id, email } = user;
         showConfirmationModal(
@@ -128,14 +129,83 @@ export default function UsersPage() {
 
     return (
         <div className="users-container ">
-            <h1 className="title">All Users</h1>
-            <p className='font-semibold mb-4 text-slate-600'> {userName} : ({userRole})</p>
-            <table className="user-table">
-                <thead>
+            <h1 className="font-bold text-xl mb-4 text-slate-600 ">All users</h1>
+            <p className='font-semibold mb-4 text-slate-600'> {userName} : <span className=' text-emerald-500 '>[{userRole}]</span></p>
+
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-[#6A4BFF] text-white whitespace-nowrap">
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Status</th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Role
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Joined At
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-white divide-y divide-gray-200 whitespace-nowrap">
+
+                    {
+                        users.map((user, index) => (
+                            <tr key={user.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-indigo-50'} border border-slate-100 `}>
+                                <td class="px-4 py-4 text-sm text-slate-900 font-medium">
+                                    {user.username}
+                                </td>
+                                <td class="px-4 py-4 text-sm text-slate-600 font-medium">
+                                    {user.email}
+                                </td>
+                                <td class="px-4 py-4 text-sm text-slate-600 font-medium">
+                                    {user.role}
+                                </td>
+                                <td class="px-4 py-4 text-sm text-slate-600 font-medium">
+                                    {dateFormat(user)}
+                                </td>
+                                <td class="px-4 py-4 text-sm text-slate-600 font-medium">
+                                    {user.isLoggedIn ? <span className=' text-emerald-600 text-sm'>Logged In</span> : <span className='text-red-600 text-sm'>Logged Out</span>}
+                                </td>
+                                <td class="px-4 py-4 text-sm">
+                                    <button class="logout-button px-2 py-1 cursor-pointer border border-blue-600 text-blue-600 font-medium mr-4 rounded-sm "
+                                        onClick={() => logoutUser(user)}
+                                        disabled={!user.isLoggedIn}
+                                    >Logout</button>
+                                    <button class="delete-button px-2 py-1 cursor-pointer border border-red-600 text-red-600 font-medium rounded-sm  "
+                                        onClick={() => {
+                                            deleteUser(user)
+                                        }}
+                                        disabled={userEmail === user.email}
+                                    >Delete</button>
+                                </td>
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
+
+            {/* <table className="user-table">
+                <thead className='bg-gray-50 whitespace-nowrap'>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th >
+                            Email
+                        </th>
+                        <th>
+                            Status
+                        </th>
                         <th></th>
                         {userRole === "Admin" && <th></th>}
                     </tr>
@@ -143,7 +213,9 @@ export default function UsersPage() {
                 <tbody className='text-gray-500'>
                     {users.map((user) => (
                         <tr key={user.id}>
-                            <td>{user.username}</td>
+                            <td>
+                                {user.username}
+                            </td>
                             <td>{user.email}</td>
                             <td>{user.isLoggedIn ? <span className='text-green-600 text-sm'>Logged In</span> : <span className='text-red-600 text-sm'>Logged Out</span>}</td>
                             <td>
@@ -172,7 +244,7 @@ export default function UsersPage() {
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </table> */}
 
             <ConfirmModal
                 isOpen={isModalOpen}

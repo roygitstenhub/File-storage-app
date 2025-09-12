@@ -121,8 +121,8 @@ export const getCurrentUser = async (req, res) => {
         email: user.email,
         picture: user.picture,
         role: user.role,
-        maxStorageInBytes:user.maxStorageInBytes,
-        usedStorageInBytes:rootDir.size
+        maxStorageInBytes: user.maxStorageInBytes,
+        usedStorageInBytes: rootDir.size
     })
 }
 
@@ -153,11 +153,13 @@ export const getAllUsers = async (req, res) => {
         allSessionData.map((data) => data?.userId?.toString()).filter(Boolean)
     );
 
-    const transformedUsers = getallusers.map(({ _id, username, email }) => ({
+    const transformedUsers = getallusers.map(({ _id, username, email, role, createdAt }) => ({
         id: _id,
         username,
         email,
-        isLoggedIn: allSessionUserIdSet.has(_id.toString())
+        isLoggedIn: allSessionUserIdSet.has(_id.toString()),
+        role,
+        createdAt: createdAt
     }));
 
     res.status(200).json(transformedUsers);
@@ -209,3 +211,4 @@ export const deleteUser = async (req, res, next) => {
         next(error)
     }
 }
+

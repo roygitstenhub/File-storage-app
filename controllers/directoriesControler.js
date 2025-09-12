@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import Directory from "../model/directoryModel.js"
 import File from "../model/fileModel.js"
 import { updateDirSize } from "./filesControler.js";
+import { file } from "zod/v4";
+import { deleteS3Files } from "../database/s3.js";
 
 export const getDirectoryById = async (req, res) => {
     const user = req.user
@@ -16,18 +18,24 @@ export const getDirectoryById = async (req, res) => {
 
     const directories = await Directory.find({ parentDirId: _id }).lean()
 
-    const result = await Directory.findById(_id).populate('path')
+    const result = await Directory.findById(_id).select('name _id').populate({
+        path: 'path',
+        select: 'name _id'
+    })
+
+    let breadcrumbPathArray = result.path
+
     let dirfullpath = ''
     result.path.map((dir) => {
         dirfullpath += `/${dir.name}`
     })
-    console.log(dirfullpath)
-
 
     return res.status(200).json({
         ...directoryData,
         files: files.map((dir) => ({ ...dir, id: dir._id })),
-        directories: directories.map((dir) => ({ ...dir, id: dir._id }))
+        directories: directories.map((dir) => ({ ...dir, id: dir._id })),
+        resolvepath: dirfullpath,
+        breadcrumb: breadcrumbPathArray
     })
 }
 
@@ -83,7 +91,6 @@ export const renameDirectory = async (req, res) => {
 
 export const deleteDirectory = async (req, res, next) => {
     const { id } = req.params
-
     try {
         const directoryData = await Directory.findOne({ _id: id, userId: req.user._id }).lean()
 
@@ -107,8 +114,14 @@ export const deleteDirectory = async (req, res, next) => {
 
         const { files, directories } = await getDirContents(id)
 
-        for (const { _id, extension } of files) {
-            await rm(`./storage/${_id.toString()}${extension}`);
+        // for (const { _id, extension } of files) {
+        //     await rm(`./storage/${_id.toString()}${extension}`);
+        // }
+
+        const keys = files.map(({ _id, extension }) => ({ Key: `${_id}${extension}` }))
+
+        if (keys.length > 0) {
+            await deleteS3Files(keys)
         }
 
         await File.deleteMany({ _id: { $in: files.map(({ _id }) => _id) } })
@@ -116,10 +129,11 @@ export const deleteDirectory = async (req, res, next) => {
         await Directory.deleteMany({ _id: { $in: [...directories.map(({ _id }) => _id), id] } })
 
         await updateDirSize(directoryData.parentDirId, -directoryData.size)
+
+        return res.json({ message: "Files deleted successfully" })
+
     } catch (error) {
         next(error)
     }
-
-    return res.json({ message: "Files deleted successfully" })
 
 }

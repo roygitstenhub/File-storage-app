@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { useDirectoryContext } from "../context/DirectoryContext";
+import { getDirectoryItems } from "../apis/directoryApi";
 
 function ContextMenu({ item, isUploadingItem }) {
+
   const {
     handleCancelUpload,
     setDeleteItem,
@@ -9,11 +12,11 @@ function ContextMenu({ item, isUploadingItem }) {
     BASE_URL,
   } = useDirectoryContext();
 
-  const BAKEND_URL = import.meta.env.VITE_BACKEND_BASE_UR
+  const BAKEND_URL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const menuClass =
-    "absolute bg-white border border-blue-400 shadow-md rounded text-sm z-50 right-2 top-4/5 overflow-hidden";
-  const itemClass = "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+    "absolute bg-white border border-indigo-500 shadow-md rounded text-sm z-50 right-0 top-12 overflow-hidden";
+  const itemClass = "px-4 py-2 hover:bg-indigo-100 cursor-pointer";
 
   if (item.isDirectory) {
     return (

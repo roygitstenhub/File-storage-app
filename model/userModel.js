@@ -49,6 +49,7 @@ const userSchema = new Schema(
   },
   {
     strict: "throw",
+    timestamps: true
   }
 );
 
