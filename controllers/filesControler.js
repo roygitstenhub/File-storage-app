@@ -179,7 +179,7 @@ export const deleteFile = async (req, res, next) => {
         await file.deleteOne()
         await updateDirSize(file.parentDirId, -file.size);
         // await rm(`./storage/${id}${file.extension}`)
-         await deleteS3File(`${file.id}${file.extension}`)
+        await deleteS3File(`${file.id}${file.extension}`)
         return res.status(200).json({
             error: "File deleted successully"
         })
@@ -264,4 +264,14 @@ export const uploadComplete = async (req, res, next) => {
         })
     }
 
+}
+
+export const searchFileAndFolders = async (req, res, next) => {
+    try {
+        const { q } = req.query || ""
+        const searchedItem = await File.find({ name: new RegExp(q, 'i') }).lean()
+        res.status(200).json(searchedItem)
+    } catch (error) {
+        next()
+    }
 }

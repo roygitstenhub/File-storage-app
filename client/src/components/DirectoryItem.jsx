@@ -14,10 +14,9 @@ import { useDirectoryContext } from "../context/DirectoryContext";
 import { formatSize } from "./DetailsPopup";
 import { formatDistanceToNow } from "date-fns"
 import { enUS } from "date-fns/locale"
-import Spinner from "./Spinner";
+import { useState } from "react";
 
 export  const dateFormat = (item)=>{
-  console.log("item", item)
    const date = formatDistanceToNow(new Date(item.createdAt), { addSuffix: true,locale: {
           ...enUS,
           formatDistance: (token, count, options) => {
@@ -41,6 +40,7 @@ function DirectoryItem({ item, uploadProgress }) {
 
 
   // if (!item?.createdAt) return <Spinner/>;
+
 
 
   function renderFileIcon(iconString) {
@@ -67,27 +67,26 @@ function DirectoryItem({ item, uploadProgress }) {
 // bg-gradient-to-l from-[#fff] to-[#6A4BFF]
   return (
      <div
-      className="  bg-white bg-gradient-to-t from-[#fff] to-[#6A4BFF] flex flex-col justify-between p-4 hover:bg-indigo-200 border-gray-300 hover:border-indigo-500 rounded cursor-pointer relative shadow-[0px_2px_8px_0px_rgba(99,99,99,0.2)]   "
+      className="  bg-white flex flex-col justify-between p-4 hover:bg-indigo-100 border-gray-300 hover:border-indigo-500 rounded cursor-pointer relative shadow-[0px_2px_8px_0px_rgba(99,99,99,0.2)]   "
       onClick={() =>
         !(activeContextMenu || isUploading) &&
         handleRowClick(item.isDirectory ? "directory" : "file", item.id)
       }
       onContextMenu={(e) => handleContextMenu(e, item.id)}
     >
-
       <div className="flex flex-col justify-between" title={`Size : ${formatSize(item.size)}\nCreated At : ${new Date(item.createdAt).toLocaleString()}`}>
         <div className="flex items-center w-full justify-between gap-2">
           {item.isDirectory ? (
-            <span className="p-2 rounded-lg bg-blue-50"><FaFolder className="text-amber-500 text-lg" /></span>
+            <span className="p-2 rounded-lg bg-blue-50  "><FaFolder className="text-amber-500 text-2xl" /></span>
        
           ) : (
-            <span className="p-2 rounded-lg bg-blue-50 text-[#6A4BFF] ">{renderFileIcon(getFileIcon(item.name))}</span>
+            <span className="p-2 rounded-lg bg-blue-50 text-[#6A4BFF] text-2xl ">{renderFileIcon(getFileIcon(item.name))}</span>
           )}
         <div
-          className="text-white hover:text-gray-800 cursor-pointer hover:bg-blue-200 p-2 rounded-full"
+          className=" text-black p-3 rounded-lg bg-blue-50 hover:text-gray-800 cursor-pointer hover:bg-indigo-200 "
           onClick={(e) => handleContextMenu(e, item.id)}
         >
-          <BsThreeDotsVertical />
+          <BsThreeDotsVertical className="text-lg text-[#6A4BFF] " />
         </div>
 
         </div>

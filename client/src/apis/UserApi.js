@@ -39,3 +39,8 @@ export const deleteUserById = async (id) => {
   const { data } = await axiosWithCreds.delete(`/users/${id}`);
   return data;
 };
+
+export const userStorage = async (id) => {
+  const { data } = await axiosWithCreds.get(`/user/${id}`);
+  return data
+}

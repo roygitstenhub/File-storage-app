@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { formatSize } from './DetailsPopup'
+// import { userStorage } from '../apis/UserApi.js'
 
 const StorageIndicator = ({ item }) => {
 
   // Calculate percentage and color
   const storageUsed = item
   const res = formatSize(1073741824)
-  const totalStorage = 1073741824;
+  const totalStorage = 2147483648;
   const freeStorage = totalStorage - storageUsed;
   const percentageUsed = (storageUsed / totalStorage) * 100;
 
@@ -24,12 +25,15 @@ const StorageIndicator = ({ item }) => {
     bgColor = 'text-red-200';
   }
 
+
+
   return (
     <div className="bg-gradient-to-b from-[#fff] to-[#6A4BFF] rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-indigo-800 ">Storage</h1>
       </div>
 
+     
       {/* Circular Storage Indicator */}
       <div className="flex justify-center mb-6">
         <div className="relative w-32 h-32">

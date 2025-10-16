@@ -1,6 +1,6 @@
 import express from "express"
 import checkAuth, { checkIsAdminUser, checkNotRegularUser } from "../middleware/auth.js"
-import { deleteUser, getAllUsers, getCurrentUser, login, logout, logoutAll, logoutById, register } from "../controllers/usersControler.js"
+import { deleteUser, getAllUsers, getCurrentUser, login, logout, logoutAll, logoutById, register, userStorage } from "../controllers/usersControler.js"
 // import limiter from "../services/rateLimiter.js"
 // import throttle from "../services/throttling.js"
 
@@ -27,5 +27,8 @@ router.get('/users', checkAuth, checkNotRegularUser, getAllUsers)
 router.post("/users/:userId/logout", checkAuth, checkNotRegularUser, logoutById)
 
 router.delete("/users/:userId", checkAuth, checkIsAdminUser, deleteUser)
+
+router.get("/user/:id",userStorage)
+
 
 export default router

@@ -18,7 +18,7 @@ import DetailsPopup from "./components/DetailsPopup";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModel";
 import StorageIndicator from "./components/StorageIndicator";
 import UploadingSpace from "./components/UploadingSpace";
-import { fetchUser } from "./apis/UserApi";
+import img from "../src/assets/img.png"
 
 function DirectoryView() {
   const { dirId } = useParams();
@@ -421,7 +421,7 @@ function DirectoryView() {
         )}
 
         <div className="min-h-screen p-4 grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-8xl mx-auto bg-[#F6F9FF]   ">
-          <div className="lg:col-span-3 space-y-6 bg-[#F6F9FF]  p-4 ">
+          <div className="lg:col-span-3 space-y-6  p-4  ">
            {combinedItems.length === 0 ? (
            errorMessage ===
           "Directory not found or you do not have access to it!" ? (
@@ -429,9 +429,11 @@ function DirectoryView() {
               Directory not found or you do not have access to it!
             </p>
           ) : (
-            <p className="text-center text-gray-600 mt-4 italic">
+            <p className=" flex items-center justify-center  flex-col text-center text-gray-600 mt-4 italic">
               This folder is empty. Upload files or create a folder to see some
               data.
+
+              <img src={img} alt="" className=" lg:w-[500px] "  />
             </p>
           )
         ) : (

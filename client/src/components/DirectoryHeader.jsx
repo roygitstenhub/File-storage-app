@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchUser, logoutUser, logoutAllSessions } from "../apis/UserApi.js";
+import { searchFileAndFolders } from "../apis/fileApi.js";
+import { Popover } from "@headlessui/react";
+
 import {
   FaFolderPlus,
   FaUpload,
@@ -8,6 +11,8 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
 } from "react-icons/fa";
+import DirectoryList from "./DirectoryList.jsx";
+import { func } from "prop-types";
 
 function DirectoryHeader({
   item,
@@ -25,6 +30,11 @@ function DirectoryHeader({
   const [userPicture, setUserPicture] = useState("");
   const [maxStorageInBytes, setmaxStorageInBytes] = useState(1073741824)
   const [usedStorageInBytes, setusedStorageInBytes] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userId, setUserId] = useState(null)
+  const [searchresult, setSearchresult] = useState([])
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const usedGB = usedStorageInBytes / 1024 ** 3
   const totalGB = maxStorageInBytes / 1024 ** 3
@@ -36,6 +46,7 @@ function DirectoryHeader({
     async function loadUser() {
       try {
         const data = await fetchUser();
+        setUserId(data?.id)
         setUserName(data.name);
         setUserEmail(data.email);
         setUserPicture(data.picture)
@@ -93,6 +104,40 @@ function DirectoryHeader({
     return () => document.removeEventListener("mousedown", handleDocumentClick);
   }, []);
 
+
+  async function handleSearchsubmit(e) {
+    e.preventDefault()
+    const data = await searchFileAndFolders(searchTerm, userId)
+    setSearchresult(data)
+    setSearchTerm("")
+  }
+
+  if (searchresult.length !== 0) {
+    console.log(searchresult)
+  }
+
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    // show dropdown only when there are results
+    setShowDropdown(searchresult.length !== 0);
+  }, [searchresult]);
+
+  function handleFileClick(fileId) {
+    window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/file/${fileId}`
+  }
+
+
+
   return (
     <header className="flex items-center justify-between py-2 mb-0 ">
       {
@@ -142,18 +187,43 @@ function DirectoryHeader({
         />
 
 
-        <div class="bg-white flex px-1 py-1 rounded-full border border-indigo-500 overflow-hidden max-w-xl mx-auto">
-          <input type='email' placeholder='Search Something...' class="w-full outline-none bg-white pl-4 text-sm" />
+        <div class="bg-white flex px-1 py-1 rounded-full border border-indigo-500 overflow-hidden max-w-xl mx-auto  " ref={dropdownRef}>
+          <input type='email'
+            placeholder='Search Something...'
+            className="w-full outline-none bg-white pl-4 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <button type='button'
-            class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-full px-5 py-2.5">
+            class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-full px-5 py-2.5"
+            onClick={handleSearchsubmit}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px" fill="currentColor" className="text-white">
               <path
                 d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
               </path>
             </svg>
           </button>
-        </div>
 
+          {searchresult.length !== 0 && (
+            showDropdown && (
+              <div className="absolute top-12 right-2 w-full lg:w-[400px] z-10 mt-2 rounded-lg bg-[#F6F9FF] shadow-lg border border-gray-100  p-2" ref={dropdownRef} >
+                <ul className="space-y-2">
+                  {searchresult.map((file) => (
+                    <li
+                      key={file._id}
+                      className="p-2 hover:bg-gray-100 rounded cursor-pointer flex justify-between"
+                      onClick={() => handleFileClick(file._id)}
+                    >
+                      <span className="text-[#6A4BFF]" >{file.name}</span>
+                      <span className="text-sm text-gray-500">{file.extension}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          )}
+        </div>
 
         <div className="relative flex " ref={userMenuRef}>
           <button

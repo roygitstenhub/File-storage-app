@@ -5,33 +5,21 @@ function DirectoryList({ items }) {
   const { progressMap } = useDirectoryContext();
 
   return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ">
-        {items.map((item) => {
-          const uploadProgress = progressMap[item.id] || 0;
-          return (
-            <DirectoryItem
-              key={item.id}
-              item={item}
-              uploadProgress={uploadProgress}
-            />
-          );
-        })}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ">
+      {items.map((item) => {
+        const uploadProgress = progressMap[item.id] || 0;
+        return (
+          <DirectoryItem
+            key={item.id}
+            item={item}
+            uploadProgress={uploadProgress}
+          />
+        );
+      })}
+    </div>
   );
 }
 
-{/* <div className="space-y-2 ">
-        {items.map((item) => {
-          const uploadProgress = progressMap[item.id] || 0;
-          return (
-            <DirectoryItem
-              key={item.id}
-              item={item}
-              uploadProgress={uploadProgress}
-            />
-          );
-        })}
-</div> */}
 
 export default DirectoryList;
 

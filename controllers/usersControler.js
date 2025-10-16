@@ -117,6 +117,7 @@ export const getCurrentUser = async (req, res) => {
     const user = await User.findById(req.user._id).lean()
     const rootDir = await Directory.findById(user.rootDirId).lean()
     res.status(200).json({
+        id: user._id,
         name: user.username,
         email: user.email,
         picture: user.picture,
@@ -211,4 +212,25 @@ export const deleteUser = async (req, res, next) => {
         next(error)
     }
 }
+
+export const userStorage = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const { maxStorageInBytes } = await User.findById(id).select('maxStorageInBytes')
+        const directoryList = await Directory.find({ userId: id }).select('size')
+        let usedStorageInBytes = 0
+        directoryList.map((dir)=>{
+            usedStorageInBytes += dir.size
+        })
+        res.json({
+            maxStorage: maxStorageInBytes,
+            usedStorage : usedStorageInBytes
+        })
+    } catch (error) {
+        next()
+    }
+}
+
+
+
 

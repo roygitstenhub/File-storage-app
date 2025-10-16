@@ -1,4 +1,4 @@
-import { axiosWithCreds } from "./AxiosInstance.js";
+import { axiosWithCreds, axiosWithoutCreds } from "./AxiosInstance.js";
 
 export const deleteFile = async (id) => {
   const { data } = await axiosWithCreds.delete(`/file/${id}`);
@@ -29,13 +29,18 @@ export const uploadFileWithProgress = async (
 };
 
 export const uploadInitiate = async (fileData) => {
-  const { data } = await axiosWithCreds.post(`/file/upload/initiate`,fileData);
+  const { data } = await axiosWithCreds.post(`/file/upload/initiate`, fileData);
   return data;
 };
 
 export const uploadComplete = async (fileId) => {
-  const { data } = await axiosWithCreds.post(`/file/upload/complete`,{fileId});
+  const { data } = await axiosWithCreds.post(`/file/upload/complete`, { fileId });
   return data;
 };
+
+export const searchFileAndFolders = async (searchTerm, userId) => {
+  const { data } = await axiosWithCreds.get(`/file/search/${userId}?q=${searchTerm}`)
+  return data
+}
 
 

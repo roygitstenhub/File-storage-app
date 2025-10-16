@@ -13,6 +13,8 @@ import authRoutes from "./routes/authRouter.js"
 import { connectDb } from "./database/db.js"
 import limiter from "./services/rateLimiter.js"
 // import throttle from "./services/throttling.js"
+import subscriptionRoutes from "./routes/subscriptionRoutes.js"
+import webhookRoutes from "./routes/webhookRoutes.js"
 
 const PORT = process.env.PORT || 3000
 
@@ -34,6 +36,8 @@ app.use("/directory", checkAuth, directoryRoutes)
 app.use("/file", checkAuth, fileRoutes)
 app.use("/", userRoutes)
 app.use("/auth", authRoutes)
+app.use("/subscriptions",checkAuth,subscriptionRoutes)
+app.use("/webhooks",webhookRoutes)
 
 app.use((err, req, res, next) => {
     console.log(err)
