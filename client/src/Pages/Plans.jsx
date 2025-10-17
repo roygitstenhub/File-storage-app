@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createSubscription } from "../apis/subscriptionsApi.js";
+import { meta } from "@eslint/js";
 
 
 const PLAN_CATALOG = {
@@ -249,8 +250,8 @@ export default function Plans() {
 function razorpayPopUp({ subscriptionId }) {
 
     var rzp1 = new Razorpay({
-        // key: "rzp_live_RTmKzOwehd8NPJ",
-        key:"rzp_test_RHNyUJ5BVo08HK",
+        // key: "",
+        key: import.meta.env.RAZORPAY_TEST_KEYID,
         currency: "INR",
         name: "StorageApp Labs", //your business name
         description: "subscription in test",
