@@ -1,4 +1,4 @@
-import { axiosWithCreds, axiosWithoutCreds } from "./AxiosInstance";
+import { axiosWithCreds, axiosWithoutCreds } from "./AxiosInstance.js";
 
 export const fetchUser = async () => {
   const { data } = await axiosWithCreds.get("/user");

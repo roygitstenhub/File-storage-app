@@ -1,7 +1,10 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
-dotenv.config()
+dotenv.config({
+    origin: true,
+    credentials: true,
+})
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
@@ -36,8 +39,8 @@ app.use("/directory", checkAuth, directoryRoutes)
 app.use("/file", checkAuth, fileRoutes)
 app.use("/", userRoutes)
 app.use("/auth", authRoutes)
-app.use("/subscriptions",checkAuth,subscriptionRoutes)
-app.use("/webhooks",webhookRoutes)
+app.use("/subscriptions", checkAuth, subscriptionRoutes)
+app.use("/webhooks", webhookRoutes)
 
 app.use((err, req, res, next) => {
     console.log(err)
