@@ -7,7 +7,7 @@ import Subscription from "../model/subscriptionModel.js"
 // })
 
 const rzpInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_TEST_KEY_ID,
+    key_id: "rzp_test_RHNyUJ5BVo08HK",
     key_secret: process.env.RAZORPAY_TEST_KEY_SECRET
 })
 

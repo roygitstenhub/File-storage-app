@@ -1,7 +1,12 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-export const s3Client = new S3Client()
+export const s3Client = new S3Client({
+    credentials:{
+        accessKeyId:"AKIA5TXMLIZRJ6VDC2MR",
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+    }
+})
 
 export const createUploadSignedUrl = async ({ key, contentType }) => {
     const command = new PutObjectCommand({

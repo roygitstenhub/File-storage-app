@@ -34,6 +34,7 @@ function DirectoryView() {
   const [renameType, setRenameType] = useState(null);
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
+  const [userId,setUserId]=useState("")
 
   const fileInputRef = useRef(null);
 
@@ -49,7 +50,6 @@ function DirectoryView() {
   const [deleteItem, setDeleteItem] = useState(null);
   const [dirpath,setDirPath] = useState("")
   const [path,setPath] = useState([])
-  const [storageIndicator,setStorageIndicator] = useState({maxstorage:0,usedstorage:0})
 
   const openDetailsPopup = (item) => {
     setDetailsItem(item);
@@ -61,7 +61,8 @@ function DirectoryView() {
   const loadDirectory = async () => {
     try {
       const data = await getDirectoryItems(dirId);
-      setStorageIndicator(data?.size)
+      console.log("data",data.userId)
+      setUserId(data?.userId)
       setDirectoryName(dirId ? data.name : "My Drive");
       setDirectoriesList([...data.directories].reverse());
       setFilesList([...data.files].reverse());
@@ -447,7 +448,7 @@ function DirectoryView() {
                 fileInputRef={fileInputRef}
                 handleFileSelect={handleFileSelect}
               />
-              <StorageIndicator item={storageIndicator} />
+              <StorageIndicator  userId={userId} />
           </div>
         </div>
           

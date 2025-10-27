@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { formatSize } from './DetailsPopup'
-// import { userStorage } from '../apis/UserApi.js'
+import { userStorage } from '../apis/UserApi.js'
+import { max } from 'date-fns'
 
-const StorageIndicator = ({ item }) => {
+const StorageIndicator = ({userId }) => {
+  const [maxStorageInBytes,setMaxStorageInBytes]=useState("")
+  const [usedStorageInBytes,setUsedStorageInBytes]=useState("")
+
+  useEffect(() => {
+    const fetchStorage = async () => {
+      try {
+        const res = await userStorage(userId)
+        setMaxStorageInBytes(res?.maxStorageInBytes)
+        setUsedStorageInBytes(res?.usedStorageInBytes)
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+    fetchStorage()
+  }, [])
 
   // Calculate percentage and color
-  const storageUsed = item
-  const res = formatSize(1073741824)
-  const totalStorage = 2147483648;
-  const freeStorage = totalStorage - storageUsed;
+  const storageUsed = usedStorageInBytes
+  const totalStorage = maxStorageInBytes;
+  const freeStorage = totalStorage - storageUsed ;
   const percentageUsed = (storageUsed / totalStorage) * 100;
 
   // Calculate stroke-dasharray values
@@ -33,7 +48,7 @@ const StorageIndicator = ({ item }) => {
         <h1 className="text-xl font-bold text-indigo-800 ">Storage</h1>
       </div>
 
-     
+
       {/* Circular Storage Indicator */}
       <div className="flex justify-center mb-6">
         <div className="relative w-32 h-32">
