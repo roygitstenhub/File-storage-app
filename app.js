@@ -1,10 +1,7 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
-dotenv.config({
-    origin: true,
-    credentials: true,
-})
+dotenv.config()
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
@@ -27,7 +24,7 @@ app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
 app.use(cors({
-    origin: process.env.FRONTEND_ORIGIN,
+    origin: true,
     credentials: true
 }))
 
