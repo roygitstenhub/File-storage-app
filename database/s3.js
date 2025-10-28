@@ -2,6 +2,7 @@ import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, HeadObject
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const s3Client = new S3Client({
+    region:"ap-south-1",
     credentials:{
         accessKeyId:"AKIA5TXMLIZRJ6VDC2MR",
         secretAccessKey: process.env.AWS_SECRET_KEY,
