@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchUser, logoutUser, logoutAllSessions } from "../apis/UserApi.js";
 import { searchFileAndFolders } from "../apis/fileApi.js";
 import { Popover } from "@headlessui/react";
@@ -12,7 +12,6 @@ import {
   FaSignInAlt,
 } from "react-icons/fa";
 import DirectoryList from "./DirectoryList.jsx";
-import { func } from "prop-types";
 
 function DirectoryHeader({
   item,
@@ -261,6 +260,11 @@ function DirectoryHeader({
                     </div>
                   </div>
                   <div className="border-t border-gray-200" />
+                  <Link to='/plans'
+                    className="flex items-center text-sm gap-2 bg-indigo-500 cursor-pointer hover:bg-gray-200 px-4 py-2"
+                  >
+                    Get More Storage
+                  </Link>
                   <div
                     className="flex items-center gap-2 text-gray-700 cursor-pointer hover:bg-gray-200 px-4 py-2"
                     onClick={handleLogout}
