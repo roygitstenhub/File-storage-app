@@ -24,7 +24,7 @@ app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
 app.use(cors({
-    origin: true,
+    origin: `${process.env.FRONTEND_ORIGIN}`,
     credentials: true
 }))
 
@@ -45,7 +45,6 @@ app.use((err, req, res, next) => {
         error: "Something went wrong"
     })
 })
-
 
 //server creation code 
 app.listen(PORT, () => {
