@@ -127,7 +127,6 @@ function DirectoryHeader({
   }, []);
 
   useEffect(() => {
-    // show dropdown only when there are results
     setShowDropdown(searchresult.length !== 0);
   }, [searchresult]);
 
@@ -138,35 +137,29 @@ function DirectoryHeader({
 
 
   return (
-    <header className="flex items-center justify-between py-2 mb-0 ">
+
+    <header className="flex flex-col sm:flex-row justify-between items-center px-4 py-2 gap-3">
       {
-        item && (<nav className="flex space-x-2 text-sm ">
-          <span className=" text-black font-semibold  ">My Drive :  </span>
-          {item.map((dir, index) => (
-            <div key={index} className="flex items-center">
-              <span className={index === item.length - 1 ? 'font-semibold text-blue-500 ' : 'text-gray-500'}>
-                <a href={`/directory/${dir._id}`} className="">
-                  {dir.name}
-                </a>
-              </span>
-              {index !== item.length - 1 && (
-                <span className="mx-1 text-gray-400 ">{'/'}</span>
-              )}
-            </div>
-          ))}
-        </nav>)
+        item && (
+          <nav className="flex space-x-2 text-sm w-full sm:w-auto justify-start sm:justify-start">
+            <span className=" text-black font-semibold  ">My Drive :  </span>
+            {item.map((dir, index) => (
+              <div key={index} className="flex items-center">
+                <span className={index === item.length - 1 ? 'font-semibold text-blue-500 ' : 'text-gray-500'}>
+                  <a href={`/directory/${dir._id}`} className="">
+                    {dir.name}
+                  </a>
+                </span>
+                {index !== item.length - 1 && (
+                  <span className="mx-1 text-gray-400 ">{'/'}</span>
+                )}
+              </div>
+            ))}
+          </nav>)
       }
 
-      <div className="flex gap-4 items-center justify-center ">
-        <button
-          className="text-white w-13 h-13 hover:text-white text-xl -mb-0.5 mr-0.5 disabled:text-indigo-300   cursor-pointer
-          fixed bottom-2 right-5 z-[99] bg-[#6A4BFF] hover:bg-indigo-700   px-4 py-4  rounded-full shadow-lg transition duration-300"
-          title="Create Folder  "
-          onClick={onCreateFolderClick}
-          disabled={disabled}
-        >
-          <FaFolderPlus />
-        </button>
+      <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 ">
+        
         <button
           className="text-white hover:text-white text-xl disabled:text-indigo-300 cursor-pointer
           fixed bottom-5 left-5 z-[99] bg-[#6A4BFF] hover:bg-indigo-700  px-5 py-3 rounded-full shadow-lg transition duration-300 hidden "
@@ -185,16 +178,15 @@ function DirectoryHeader({
           onChange={handleFileSelect}
         />
 
-
-        <div class="bg-white flex px-1 py-1 rounded-full border border-indigo-500 overflow-hidden max-w-xl mx-auto  " ref={dropdownRef}>
-          <input type='email'
+        <div class="bg-white flex px-1 py-1 rounded-md border border-indigo-500 overflow-hidden max-w-xl mx-auto  " ref={dropdownRef}>
+          <input type='text'
             placeholder='Search Something...'
             className="w-full outline-none bg-white pl-4 text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button type='button'
-            class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-full px-5 py-2.5"
+            class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-md px-5 py-2.5"
             onClick={handleSearchsubmit}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px" fill="currentColor" className="text-white">
@@ -206,33 +198,55 @@ function DirectoryHeader({
 
           {searchresult.length !== 0 && (
             showDropdown && (
-              <div className="absolute top-12 right-2 w-full lg:w-[400px] z-10 mt-2 rounded-lg bg-[#F6F9FF] shadow-lg border border-gray-100  p-2" ref={dropdownRef} >
-                <ul className="space-y-2">
-                  {searchresult.map((file) => (
-                    <li
-                      key={file._id}
-                      className="p-2 hover:bg-gray-100 rounded cursor-pointer flex justify-between"
-                      onClick={() => handleFileClick(file._id)}
-                    >
-                      <span className="text-[#6A4BFF]" >{file.name}</span>
-                      <span className="text-sm text-gray-500">{file.extension}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
+          <div
+            ref={dropdownRef}
+            className="absolute top-18 right-0 sm:right-2 w-full sm:w-[400px] z-20 mt-2 rounded-xl bg-white shadow-lg border border-gray-200 p-2 max-h-64 overflow-y-auto transition-all duration-200 ease-in-out"
+          >
+            {searchresult.length > 0 ? (
+              <ul className="divide-y divide-gray-100">
+                {searchresult.map((file) => (
+                  <li
+                    key={file._id}
+                    className="p-3 hover:bg-indigo-50 rounded-lg cursor-pointer flex justify-between items-center transition-colors duration-150"
+                    onClick={() => handleFileClick(file._id)}
+                  >
+                    <span className="text-sm font-medium text-gray-700 truncate max-w-[70%] sm:max-w-[80%]">
+                      <span className="text-[#6A4BFF]">{file.name}</span>
+                    </span>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                      {file.extension}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="p-3 text-sm text-gray-500 text-center">No results found</div>
+            )}
+          </div>
+
+          )
           )}
         </div>
 
+        <button
+          className="text-white w-18  hover:text-white text-xl -mb-0.5 mr-0.5 disabled:text-indigo-300   cursor-pointer
+           z-[99] bg-[#6A4BFF] hover:bg-indigo-700   px-6 py-3  rounded-md shadow-lg transition duration-300"
+          title="Create Folder  "
+          onClick={onCreateFolderClick}
+          disabled={disabled}
+        >
+          <FaFolderPlus />
+        </button>
+
         <div className="relative flex " ref={userMenuRef}>
           <button
-            className="text-[#6A4BFF] hover:text-blue-700 "
+            className="text-[#6A4BFF] hover:text-blue-700  "
             title="User Menu"
             onClick={handleUserIconClick}
           >
             {userPicture ? (
               <img
-                className="w-10 h-10 rounded-full object-cover  "
+                className="w-12 h-12 rounded-full object-cover  "
                 src={userPicture}
                 alt={userName}
               />
@@ -241,7 +255,7 @@ function DirectoryHeader({
             )}
           </button>
           {showUserMenu && (
-            <div className="absolute right-0 top-8 mt-2 w-78 bg-white rounded-md shadow-md z-10 border border-gray-300 overflow-hidden">
+            <div className="absolute right-0 top-10 mt-2 w-78 bg-white rounded-md shadow-md z-10 border border-gray-300 overflow-hidden">
               {loggedIn ? (
                 <>
                   <div className="px-3 py-2 text-sm text-gray-800">
@@ -261,7 +275,7 @@ function DirectoryHeader({
                   </div>
                   <div className="border-t border-gray-200" />
                   <Link to='/plans'
-                    className="flex items-center text-sm gap-2 bg-indigo-500 cursor-pointer hover:bg-gray-200 px-4 py-2"
+                    className="flex items-center rounded-md text-white text-sm gap-2 bg-indigo-500 cursor-pointer m-1 hover:bg-indigo-400 px-4 py-2"
                   >
                     Get More Storage
                   </Link>

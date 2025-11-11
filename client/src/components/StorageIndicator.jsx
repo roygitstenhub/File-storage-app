@@ -80,7 +80,7 @@ const StorageIndicator = ({userId }) => {
           {/* Value Text */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
             <span className="text-lg font-bold text-white">{formatSize(freeStorage.toFixed(2))}</span>
-            <span className="text-white block text-xs">GB Free</span>
+            <span className="text-white block text-sm">Free</span>
           </div>
         </div>
       </div>
