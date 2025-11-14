@@ -23,14 +23,25 @@ const app = express()
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
+var whitelist = [process.env.FRONTEND_ORIGIN_1,process.env.FRONTEND_ORIGIN_2]
+
 app.use(cors({
-    origin: `${process.env.FRONTEND_ORIGIN}`,
+    origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin ) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
     credentials: true
 }))
 
 app.use(helmet())
 
 app.use(limiter)
+app.get("/",(req,res)=>{
+	res.json({message:"hello from storageapp"})
+})
 
 app.get("/",(req,res)=>{
     res.json({
