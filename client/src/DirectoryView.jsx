@@ -24,7 +24,7 @@ function DirectoryView() {
   const { dirId } = useParams();
   const navigate = useNavigate();
 
-  const [directoryName, setDirectoryName] = useState("My Drive");
+  const [directoryName, setDirectoryName] = useState("Home");
   const [directoriesList, setDirectoriesList] = useState([]);
   const [filesList, setFilesList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -63,7 +63,7 @@ function DirectoryView() {
       const data = await getDirectoryItems(dirId);
       console.log("data",data.userId)
       setUserId(data?.userId)
-      setDirectoryName(dirId ? data.name : "My Drive");
+      setDirectoryName(dirId ? data.name : "Home");
       setDirectoriesList([...data.directories].reverse());
       setFilesList([...data.files].reverse());
       setDirPath(dirId ? data.resolvepath: "")
