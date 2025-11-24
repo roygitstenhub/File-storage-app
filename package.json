@@ -4,7 +4,8 @@
     "dev": "node --watch --no-deprecation --env-file=.env app.js",
     "start": "node app.js",
     "setup": "node --env-file=.env database/setup.js",
-    "build":"npm i"
+    "build":"npm i",
+    "test":"node test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.879.0",
