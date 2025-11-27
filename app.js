@@ -22,6 +22,7 @@ const PORT = process.env.PORT || 3000
 
 await connectDb()
 const app = express()
+app.set("trust proxy", 1)
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
@@ -56,7 +57,7 @@ app.post("/github-webhook", (req, res) => {
   })
 
   bashChildProcess.on("close", (code) => {
-    res.json({message:"OK"})
+    res.json({ message: "OK" })
     if (code === 0) {
       console.log("script executed successfully")
     } else {
@@ -65,7 +66,7 @@ app.post("/github-webhook", (req, res) => {
   })
 
   bashChildProcess.on("error", (err) => {
-    res.json({message:"OK"})
+    res.json({ message: "OK" })
     console.log("Error in spawning the  process")
     console.log(err.message)
   })
