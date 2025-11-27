@@ -44,8 +44,7 @@ app.use(helmet())
 app.use(limiter)
 
 app.post("/github-webhook", (req, res) => {
-  console.log(req.body)
-  console.log(req.headers)
+  
   const bashChildProcess = spawn("bash", ["/home/ubuntu/deployfrontend.sh"])
 
   bashChildProcess.stdout.on("data", (data) => {
