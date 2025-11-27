@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000
 
 await connectDb()
 const app = express()
-app.set("trust proxy", 1)
+app.set("trust proxy", true)
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
@@ -44,7 +44,7 @@ app.use(helmet())
 app.use(limiter)
 
 app.post("/github-webhook", (req, res) => {
-  
+
   const bashChildProcess = spawn("bash", ["/home/ubuntu/deployfrontend.sh"])
 
   bashChildProcess.stdout.on("data", (data) => {
