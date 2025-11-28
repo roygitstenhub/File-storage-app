@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3000
 
 await connectDb()
 const app = express()
-app.set("trust proxy",1)
+app.set("trust proxy", 1)
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(express.json())
 
@@ -48,10 +48,10 @@ app.post("/github-webhook", (req, res) => {
   const givenSignature = req.headers["x-hub-signature-256"]
 
   if (!givenSignature) {
-   return  res.status(403).json({ error: "No Invalid Signature" })
+    return res.status(403).json({ error: "No Invalid Signature" })
   }
 
-  const calculatedSignature = 'sha256=' + crypto.createHmac("sha256",process.env.GITHUB_SECRET).update(JSON.stringify(req.body)).digest("hex")
+  const calculatedSignature = 'sha256=' + crypto.createHmac("sha256", process.env.GITHUB_SECRET).update(JSON.stringify(req.body)).digest("hex")
 
   if (givenSignature !== calculatedSignature) {
     return res.status(403).json({ error: "Invalid Signature " })
@@ -61,7 +61,6 @@ app.post("/github-webhook", (req, res) => {
 
   const bashChildProcess = spawn("bash", ["/home/ubuntu/deployfrontend.sh"], {
     detached: true,
-    stdio: "ignore"
   })
 
   bashChildProcess.stdout.on("data", (data) => {
