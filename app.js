@@ -16,6 +16,7 @@ import limiter from "./services/rateLimiter.js"
 import subscriptionRoutes from "./routes/subscriptionRoutes.js"
 import webhookRoutes from "./routes/webhookRoutes.js"
 import { spawn } from "child_process"
+import crypto from "crypto"
 
 
 const PORT = process.env.PORT || 3000
@@ -43,13 +44,24 @@ app.use(helmet())
 
 app.use(limiter)
 
-app.post("/github-webhook", express.raw({ type: "*/*" }), (req, res) => {
+app.post("/github-webhook", (req, res) => {
+  const givenSignature = req.headers["x-hub-signature-256"]
+
+  if (!givenSignature) {
+    res.status(403).json({ error: "No Invalid Signature" })
+  }
+
+  const calculatedSignature = 'sha256=' + crypto.createHmac("sha256",process.env.GITHUB_SECRET).update(JSON.stringify(req.body)).digest("hex")
+
+  if (givenSignature !== calculatedSignature) {
+    res.status(403).json({ error: "Invalid Signature " })
+  }
 
   res.status(200).json({ message: "OK" });
 
   const bashChildProcess = spawn("bash", ["/home/ubuntu/deployfrontend.sh"], {
-    detached: true,    
-    stdio: "ignore"    
+    detached: true,
+    stdio: "ignore"
   })
 
   bashChildProcess.stdout.on("data", (data) => {
