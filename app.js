@@ -48,13 +48,13 @@ app.post("/github-webhook", (req, res) => {
   const givenSignature = req.headers["x-hub-signature-256"]
 
   if (!givenSignature) {
-    res.status(403).json({ error: "No Invalid Signature" })
+   return  res.status(403).json({ error: "No Invalid Signature" })
   }
 
   const calculatedSignature = 'sha256=' + crypto.createHmac("sha256",process.env.GITHUB_SECRET).update(JSON.stringify(req.body)).digest("hex")
 
   if (givenSignature !== calculatedSignature) {
-    res.status(403).json({ error: "Invalid Signature " })
+    return res.status(403).json({ error: "Invalid Signature " })
   }
 
   res.status(200).json({ message: "OK" });
@@ -107,6 +107,7 @@ app.use("/subscriptions", checkAuth, subscriptionRoutes)
 app.use("/webhooks", webhookRoutes)
 
 app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err)
   res.status(err.status || 500).json({
     error: "Something went wrong"
   })
