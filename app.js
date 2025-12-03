@@ -90,7 +90,7 @@ app.post("/github-webhook", (req, res) => {
 })
 
 app.get("/", (req, res) => {
-  res.json({ message: "hello from storageapp" })
+  res.json({ message: "Hello from storageApp! [ App Admin : Roysten Gonsalves ] })
 })
 
 app.get("/", (req, res) => {
