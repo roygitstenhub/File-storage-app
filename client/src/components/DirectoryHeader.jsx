@@ -140,7 +140,7 @@ function DirectoryHeader({
       {
         item && (
           <nav className="flex space-x-2 text-sm w-full sm:w-auto justify-start sm:justify-start">
-            <span className=" text-black font-semibold  ">File :  </span>
+            <span className=" text-black font-semibold  ">My Drive:  </span>
             {item.map((dir, index) => (
               <div key={index} className="flex items-center">
                 <span className={index === item.length - 1 ? 'font-semibold text-blue-500 ' : 'text-gray-500'}>
