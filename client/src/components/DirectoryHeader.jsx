@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { fetchUser, logoutUser, logoutAllSessions } from "../apis/UserApi.js";
 import { searchFileAndFolders } from "../apis/fileApi.js";
 import { Popover } from "@headlessui/react";
+import UseDebounce from "../helper/UseDebounce.jsx";
 
 import {
   FaFolderPlus,
@@ -103,6 +104,17 @@ function DirectoryHeader({
     return () => document.removeEventListener("mousedown", handleDocumentClick);
   }, []);
 
+  const debouncedQuery = UseDebounce(searchTerm, 500)
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!debouncedQuery) return;
+      const data = await searchFileAndFolders(debouncedQuery, userId);
+      setSearchresult(data);
+    }
+    fetchData();
+  }, [debouncedQuery]);
+
 
   async function handleSearchsubmit(e) {
     e.preventDefault()
@@ -157,7 +169,7 @@ function DirectoryHeader({
       }
 
       <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 ">
-        
+
         <button
           className="text-white hover:text-white text-xl disabled:text-indigo-300 cursor-pointer
           fixed bottom-5 left-5 z-[99] bg-[#6A4BFF] hover:bg-indigo-700  px-5 py-3 rounded-full shadow-lg transition duration-300 hidden "
@@ -185,7 +197,7 @@ function DirectoryHeader({
           />
           <button type='button'
             class="bg-[#6A4BFF] hover:bg-indigo-700 transition-all text-white text-sm rounded-md px-5 py-2.5"
-            onClick={handleSearchsubmit}
+          onClick={handleSearchsubmit}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px" fill="currentColor" className="text-white">
               <path
@@ -196,33 +208,33 @@ function DirectoryHeader({
 
           {searchresult.length !== 0 && (
             showDropdown && (
-          <div
-            ref={dropdownRef}
-            className="absolute top-18 right-0 sm:right-2 w-full sm:w-[400px] z-20 mt-2 rounded-xl bg-white shadow-lg border border-gray-200 p-2 max-h-64 overflow-y-auto transition-all duration-200 ease-in-out"
-          >
-            {searchresult.length > 0 ? (
-              <ul className="divide-y divide-gray-100">
-                {searchresult.map((file) => (
-                  <li
-                    key={file._id}
-                    className="p-3 hover:bg-indigo-50 rounded-lg cursor-pointer flex justify-between items-center transition-colors duration-150"
-                    onClick={() => handleFileClick(file._id)}
-                  >
-                    <span className="text-sm font-medium text-gray-700 truncate max-w-[70%] sm:max-w-[80%]">
-                      <span className="text-[#6A4BFF]">{file.name}</span>
-                    </span>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                      {file.extension}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-3 text-sm text-gray-500 text-center">No results found</div>
-            )}
-          </div>
+              <div
+                ref={dropdownRef}
+                className="absolute top-18 right-0 sm:right-2 w-full sm:w-[400px] z-20 mt-2 rounded-xl bg-white shadow-lg border border-gray-200 p-2 max-h-64 overflow-y-auto transition-all duration-200 ease-in-out"
+              >
+                {searchresult.length > 0 ? (
+                  <ul className="divide-y divide-gray-100">
+                    {searchresult.map((file) => (
+                      <li
+                        key={file._id}
+                        className="p-3 hover:bg-indigo-50 rounded-lg cursor-pointer flex justify-between items-center transition-colors duration-150"
+                        onClick={() => handleFileClick(file._id)}
+                      >
+                        <span className="text-sm font-medium text-gray-700 truncate max-w-[70%] sm:max-w-[80%]">
+                          <span className="text-[#6A4BFF]">{file.name}</span>
+                        </span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                          {file.extension}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="p-3 text-sm text-gray-500 text-center">No results found</div>
+                )}
+              </div>
 
-          )
+            )
           )}
         </div>
 
